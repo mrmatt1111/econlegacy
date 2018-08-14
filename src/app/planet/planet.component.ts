@@ -7,7 +7,7 @@ import { Location, Orientation, Direction } from './location';
 import { Pixel } from '../shared/pixel';
 
 @Component({
-    selector: 'planet',
+    selector: 'app-planet',
     templateUrl: './planet.component.html',
     styleUrls: ['./planet.component.css']
 })
@@ -28,6 +28,16 @@ export class PlanetComponent implements OnInit, AfterViewInit {
 
     Direction = Direction;
 
+    diffx;
+    diffy;
+
+    center_x: number;
+    center_y: number;
+
+    items = [];
+
+    tick: number = 0;
+
     // location: Location = new Location(0, 0);
 
     constructor(private imageService: ImageService) {
@@ -44,11 +54,12 @@ export class PlanetComponent implements OnInit, AfterViewInit {
         MapTile.initBaseImage(LandType.Medium);
         MapTile.initBaseImage(LandType.High);
 
-        this.map.gotoTile(92, 65);
+        // this.map.gotoTile(92, 65);
         // this.map.gotoTile(24, 24);
+        this.map.gotoTile(10, 15);
         // this.gotoTile(47, 48);
-        //this.location.mx = 20;
-        //this.location.my = 67;
+        // this.location.mx = 20;
+        // this.location.my = 67;
 
         let canvas: HTMLCanvasElement = <HTMLCanvasElement>this.planetCanvas.nativeElement;
         this.context = canvas.getContext('2d');
@@ -87,8 +98,9 @@ export class PlanetComponent implements OnInit, AfterViewInit {
 
             while (true) {
                 let next = values.next();
-                if (!next || next.done === true || next.value === undefined)
+                if (!next || next.done === true || next.value === undefined) {
                     break;
+                }
 
                 let pixel = new Pixel(
                     next.value,
@@ -113,18 +125,18 @@ export class PlanetComponent implements OnInit, AfterViewInit {
                 }
             }
 
+            this.map.setupLandTransitions();
+
             this.map.setOrientation(this.map.orientation); // fixme
             this.map.gatherDrawableTiles();
-            
+
             setTimeout(() => this.loop());
-            
-        }
-        image.src = '../assets/images/maps/4ci_testworld.gif';
-        // image.src = '../assets/images/maps/4ci_testworld50.gif';
+        };
+        // image.src = '../assets/images/maps/4ci_testworld.gif';
+        image.src = '../assets/images/maps/4ci_testworld50.gif';
         // image.src = '../assets/images/maps/4ci_testtiny.gif';
     }
 
-    tick: number = 0;
     loop() {
         if (!this.pause) {
             this.drawMap();
@@ -141,27 +153,20 @@ export class PlanetComponent implements OnInit, AfterViewInit {
         return -this.center_y + this.mouse.position.my + this.map.location.my;
     }
 
-    diffx;
-    diffy;
-
-    center_x: number;
-    center_y: number;
-
-    items = [];
-
-    drawPixel(x: number, y: number, fillStyle: string = undefined, size: number = 1) {
+    drawPixel(x: number, y: number, fillStyle?: string, size: number = 1) {
         if (fillStyle) {
             this.buffer.fillStyle = fillStyle;
         }
         size = size / this.map.scale;
         this.buffer.fillRect(x, y, size, size);
-    }    
+    }
 
     // drawLine
 
     drawMap() {
-        if (!this.buffer)
+        if (!this.buffer) {
             return;
+        }
 
         this.buffer.save();
 
@@ -186,13 +191,26 @@ export class PlanetComponent implements OnInit, AfterViewInit {
         let count: number = 0;
 
         for (let tile of this.map.drawableTiles) {
-            if (!tile.baseImageLoaded)
+            if (!tile.baseImageLoaded) {
                 continue;
+            }
 
-            if (this.slowTile && ++count > this.tick % (this.map.width * this.map.height))
+            if (this.slowTile && ++count > this.tick % (this.map.width * this.map.height)) {
                 continue;
+            }
 
             this.buffer.drawImage(tile.baseImage, tile.location.mx, tile.location.my);
+
+            if (tile.landTrasition !== undefined && tile.landTrasition !== -1) { // && tile.landTrasition >= 0) {
+                // this.buffer.fillStyle = "White";
+                if (tile.landType === 0) {
+                    this.buffer.fillStyle = 'White';
+                } else {
+                    this.buffer.fillStyle = 'Black';
+                }
+
+                this.buffer.fillText(tile.landTrasition.toString(), tile.location.mx + 28, tile.location.my + 20);
+            }
         }
 
         // let dx, dy;
@@ -206,11 +224,12 @@ export class PlanetComponent implements OnInit, AfterViewInit {
         // draw some lines... yes, yes i know i could just use 2d line draw, but i was using them to figure out the calcs :-D
         let length = 32 * this.map.width;
         for (let i = 0; i < length; i++) {
-            if (i % 4 !== 0)
+            if (i % 4 !== 0) {
                 continue;
-            
+            }
+
             this.drawPixel(i, -i / 2, 'Cyan');                  // north
-            this.drawPixel(w + i, i / 2 - h_div2, 'Orange');    // east            
+            this.drawPixel(w + i, i / 2 - h_div2, 'Orange');    // east
             this.drawPixel(w + i, -i / 2 + h_div2, 'Red');      // south
             this.drawPixel(i, i / 2, 'Lime');                   // west
         }
@@ -226,8 +245,8 @@ export class PlanetComponent implements OnInit, AfterViewInit {
         }
 
         let north = Location.boundPoint(Direction.North, location);
-        this.drawPixel(north.mx - 1, north.my - 1, 'Cyan', 3); 
-        
+        this.drawPixel(north.mx - 1, north.my - 1, 'Cyan', 3);
+
         let east = Location.boundPoint(Direction.East, location);
         this.drawPixel(east.mx - 1, east.my - 1, 'Orange', 3);
 
@@ -236,7 +255,7 @@ export class PlanetComponent implements OnInit, AfterViewInit {
 
         let west = Location.boundPoint(Direction.West, location);
         this.drawPixel(west.mx - 1, west.my - 1, 'Lime', 3);
-        
+
         this.buffer.restore();
         this.buffer.save();
 

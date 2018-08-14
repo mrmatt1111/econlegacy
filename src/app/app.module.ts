@@ -12,7 +12,7 @@ import { PlanetComponent } from './planet';
     AppComponent, PlanetComponent
   ],
   imports: [
-    BrowserModule, HttpModule
+    BrowserModule
   ],
   providers: [ImageService],
   bootstrap: [AppComponent]

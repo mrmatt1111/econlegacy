@@ -1,5 +1,5 @@
 // import { initChangeDetectorIfExisting } from "@angular/core/src/render3/instructions";
-import { EventEmitter } from "@angular/core";
+import { EventEmitter } from '@angular/core';
 
 export interface MousePoint {
     mx: number;
@@ -7,31 +7,31 @@ export interface MousePoint {
 }
 
 export class Mouse {
-    
+
     position: MousePoint = undefined;
     clickPosition: MousePoint = undefined;
     dragDelta: MousePoint = undefined;
 
     mouseUpEvent: EventEmitter<MousePoint> = new EventEmitter<MousePoint>();
-    
+
     constructor(private canvas: HTMLCanvasElement) {
         this.init();
     }
-    
+
     getMousePos(evt): MousePoint {
         let rect = this.canvas.getBoundingClientRect();
         return {
             mx: evt.clientX - rect.left,
             my: evt.clientY - rect.top
-        }
+        };
     }
 
     getDragDelta(): MousePoint {
         if (!this.position || !this.clickPosition) {
-            return undefined
+            return undefined;
         }
 
-        return <MousePoint> {
+        return <MousePoint>{
             mx: this.clickPosition.mx - this.position.mx,
             my: this.clickPosition.my - this.position.my,
         };
@@ -39,7 +39,7 @@ export class Mouse {
 
     clearClick() {
         this.clickPosition = undefined;
-        this.dragDelta = undefined;            
+        this.dragDelta = undefined;
     }
 
     init() {
@@ -68,9 +68,9 @@ export class Mouse {
         this.canvas.addEventListener('mousemove', (evt) => {
             if (this.position && this.clickPosition) {
                 this.dragDelta = this.getDragDelta();
-            }
-            else if (this.dragDelta)
+            } else if (this.dragDelta) {
                 this.dragDelta = undefined;
+            }
         });
 
         this.canvas.addEventListener('mouseup', (evt) => {

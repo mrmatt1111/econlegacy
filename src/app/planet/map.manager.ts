@@ -1,5 +1,5 @@
-import { MapTile } from "./map-tile";
-import { Location, Orientation } from './location';
+import { MapTile, LandTransition } from './map-tile';
+import { Location, Orientation, Direction } from './location';
 
 export class MapManager {
 
@@ -11,12 +11,14 @@ export class MapManager {
     orientation: Orientation = Orientation._0;
     location: Location = new Location(0, 0);
 
+    scale = 1;
+    inverseScale = 1 / this.scale;
+
+    private _drawableTiles: MapTile[];
+
     constructor() {
 
     }
-
-    scale = .5;
-    inverseScale = 1 / this.scale;
 
     init(width: number, height: number) {
         this.map = [];
@@ -35,6 +37,86 @@ export class MapManager {
         Location.setBounds(width, height);
     }
 
+    setupLandTransitions() {
+        for (let y = 0; y < this.height; y++) {
+            for (let x = 0; x < this.width; x++) {
+                let tile: MapTile = this.getTile(x, y); // this.map[y][x];
+
+                // let tx = tile.location.tx;
+                // let ty = tile.location.ty;
+
+                let neighbor: MapTile;
+
+                let up: LandTransition[] = [];
+
+                // transition up: 1 or 2 are touching up
+                neighbor = this.getTile(x, y - 1);
+                if (neighbor && neighbor.landType > tile.landType) {
+                    up.push(LandTransition.North);
+                }
+
+                neighbor = this.getTile(x + 1, y);
+                if (neighbor && neighbor.landType > tile.landType) {
+                    up.push(LandTransition.East);
+                }
+
+                neighbor = this.getTile(x, y + 1);
+                if (neighbor && neighbor.landType > tile.landType) {
+                    up.push(LandTransition.South);
+                }
+
+                neighbor = this.getTile(x - 1, y);
+                if (neighbor && neighbor.landType > tile.landType) {
+                    up.push(LandTransition.West);
+                }
+
+                // if (x === 14 && y === 13) {
+                //     debugger;
+                // }
+
+                if (up.length > 0) {
+                    if (up.length === 1) {
+                        tile.landTrasition = <any>up[0];
+                    } else {
+                        tile.landTrasition = <any>up[0] + 4;
+                    }
+                    continue;
+                }
+
+                // transition down: 1 touching down
+                let down: LandTransition[] = [];
+
+                neighbor = this.getTile(x + 1, y - 1);
+                if (neighbor && neighbor.landType > tile.landType) {
+                    down.push(LandTransition.NE_up);
+                }
+
+                neighbor = this.getTile(x + 1, y + 1);
+                if (neighbor && neighbor.landType > tile.landType) {
+                    down.push(LandTransition.SE_up);
+                }
+
+                neighbor = this.getTile(x - 1, y + 1);
+                if (neighbor && neighbor.landType > tile.landType) {
+                    down.push(LandTransition.SW_up);
+                }
+
+                neighbor = this.getTile(x - 1, y - 1);
+                if (neighbor && neighbor.landType > tile.landType) {
+                    down.push(LandTransition.NE_up);
+                }
+
+                if (down.length === 1) {
+                    tile.landTrasition = down[0] + 4;
+                    continue;
+                }
+
+                // flat land
+                tile.landTrasition = LandTransition.None;
+            }
+        }
+    }
+
     gotoTile(tx: number, ty: number) {
         this.location.gotoTile(this.orientation, tx, ty);
     }
@@ -46,13 +128,14 @@ export class MapManager {
         let y = this.location.my;
 
         // todo: move current position to the rotated position
-        
+
         this.setOrientation(this.orientation);
     }
 
     rotateLeft() {
-        if (this.orientation-- === Orientation._0) // fun with --
+        if (this.orientation-- === Orientation._0) { // fun with --
             this.orientation = Orientation._270;
+        }
 
         let x = this.location.mx;
         let y = this.location.my;
@@ -70,8 +153,9 @@ export class MapManager {
     zoom(into: boolean) {
         if (into) {
             this.scale = this.scale * 2;
-            if (this.scale > 4)
+            if (this.scale > 4) {
                 this.scale = 4;
+            }
         } else {
             this.scale = this.scale * .5;
             if (this.scale < .24) {
@@ -89,10 +173,8 @@ export class MapManager {
     }
 
     inBounds(x: number, y: number) {
-        return x >= 0 && x < this.width && y >= 0 && y < this.height
+        return x >= 0 && x < this.width && y >= 0 && y < this.height;
     }
-
-    private _drawableTiles: MapTile[];
 
     gatherDrawableTiles() {
         this._drawableTiles = [];
@@ -102,11 +184,11 @@ export class MapManager {
         //     return;
         // }
 
-        
+
         let row;
         for (let y = 0; y < this.height; y++) {
-            row = this.map[y];            
-            for (let x = this.width - 1; x >= 0; x--) { 
+            row = this.map[y];
+            for (let x = this.width - 1; x >= 0; x--) {
                 this._drawableTiles.push(row[x]);
             }
         }
@@ -117,8 +199,9 @@ export class MapManager {
     }
 
     getTile(x: number, y: number) {
-        if (y >= this.map.length)
+        if (y < 0 || y >= this.map.length) {
             return undefined;
+        }
         return this.map[y][x];
-    }    
+    }
 }

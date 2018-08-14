@@ -1,6 +1,3 @@
-import { shouldCallLifecycleInitHook } from "@angular/core/src/view";
-import { getTypeNameForDebugging } from "@angular/core/src/change_detection/differs/iterable_differs";
-
 export enum Orientation {
     _0,
     _90,
@@ -9,10 +6,10 @@ export enum Orientation {
 }
 
 export enum Direction {
-    North,
-    East,
-    South,
-    West,
+    North = 0,
+    East = 1,
+    South = 2,
+    West = 3,
 }
 
 export class Location {
@@ -38,29 +35,6 @@ export class Location {
         Location.mh = 32 * height;
     }
 
-    constructor(private _tx: number, private _ty: number, public mx: number = 0, public my: number = 0) {
-        this.mx = 0;
-        this.my = 0;
-    }
-
-    toString() {
-        return 't(' + this.tx + "," + this.ty + ");m(" + this.mx + "," + this.my + ")";
-    }
-
-    gotoTile(rotation: Orientation, tx: number, ty: number) {
-        this.mx = Location.calcMx(rotation, tx, ty) + 32;
-        this.my = Location.calcMy(rotation, tx, ty);
-
-        // let bounds = this.withBoundedDelta(this);
-        // this.mx = bounds.mx;
-        // this.my = bounds.my;
-    }
-
-    orientate(rotation: Orientation) {
-        this.mx = Location.calcMx(rotation, this.tx, this.ty);
-        this.my = Location.calcMy(rotation, this.tx, this.ty) - 16;
-    }
-    
     static boundPoint(direction: Direction, location: Location): Location {
 
         // let realDirection = (direction + Location.orientation) % 4;
@@ -81,7 +55,7 @@ export class Location {
                     my: (-.5 * location.mx + location.my) * .5
                 };
             case Direction.East:
-                return <any> {
+                return <any>{
                     // |y= .5x - .5w - .5h <=> x = 2y + w + h| east line
                     // |y = -.5 (x - mx) + my <=> x = -2y + mx + 2my| perpendictular line from current position
 
@@ -94,7 +68,7 @@ export class Location {
                     my: (location.mx + 2 * location.my - Location.mw - Location.mh) * .25
                 };
             case Direction.South:
-                return <Location> {
+                return <Location>{
                     // |y = -.5(x - w) + .5h <=> x = -2y + w + h| south line
                     // |y = .5(x - mx)  + my <=> x = 2y + mx - 2my| perpendictular line from current position
 
@@ -120,6 +94,49 @@ export class Location {
         }
     }
 
+    static calcMx(rotation: Orientation, tx: number, ty: number) {
+        switch (rotation) {
+            case Orientation._0: return tx * 32 + ty * 32;
+            case Orientation._90: return Location.mw - 32 + tx * 32 - ty * 32;
+            case Orientation._180: return Location.mw * 2 - 64 - tx * 32 - ty * 32;
+            case Orientation._270: return Location.mw - 32 - tx * 32 + ty * 32;
+        }
+        return 0;
+    }
+
+    static calcMy(rotation: Orientation, tx: number, ty: number) {
+        switch (rotation) {
+            case Orientation._0: return ty * 16 - tx * 16;
+            case Orientation._90: return -Location.mh / 2 + 16 + tx * 16 + ty * 16;
+            case Orientation._180: return tx * 16 - ty * 16;
+            case Orientation._270: return Location.mh * .5 - 16 - tx * 16 - ty * 16;
+        }
+        return 0;
+    }
+
+    constructor(private _tx: number, private _ty: number, public mx: number = 0, public my: number = 0) {
+        this.mx = 0;
+        this.my = 0;
+    }
+
+    toString() {
+        return 't(' + this.tx + ',' + this.ty + ');m(' + this.mx + ',' + this.my + ')';
+    }
+
+    gotoTile(rotation: Orientation, tx: number, ty: number) {
+        this.mx = Location.calcMx(rotation, tx, ty) + 32;
+        this.my = Location.calcMy(rotation, tx, ty);
+
+        // let bounds = this.withBoundedDelta(this);
+        // this.mx = bounds.mx;
+        // this.my = bounds.my;
+    }
+
+    orientate(rotation: Orientation) {
+        this.mx = Location.calcMx(rotation, this.tx, this.ty);
+        this.my = Location.calcMy(rotation, this.tx, this.ty) - 16;
+    }
+
     withBoundedDelta(delta: Location, scale: number): Location {
         if (!delta) {
             return this;
@@ -128,7 +145,7 @@ export class Location {
         let location = <Location>{
             mx: this.mx + delta.mx / scale,
             my: this.my + delta.my / scale
-        }
+        };
 
         if (
             Location.orientation === Orientation._90 ||
@@ -139,7 +156,7 @@ export class Location {
         }
 
         let exitBound;
-        let exitDirections = []
+        let exitDirections = [];
 
         // north border
         let northBound = Location.boundPoint(Direction.North, location);
@@ -194,33 +211,5 @@ export class Location {
         }
 
         return exitBound ? exitBound : location;
-    }
-
-    static calcMx(rotation: Orientation, tx: number, ty: number) {
-        switch (rotation) {
-            case Orientation._0: return tx * 32 + ty * 32;
-            case Orientation._90: return Location.mw - 32 + tx * 32 - ty * 32;
-            case Orientation._180: return Location.mw * 2 - 64 - tx * 32 - ty * 32;
-            case Orientation._270: 
-                // if (ty > 1 || tx > 10) 
-                //     return 10000;
-                return Location.mw - 32 - tx * 32 + ty * 32;
-                // return tx * 32 - ty * 32;
-        }
-        return 0;
-    }
-
-    static calcMy(rotation: Orientation, tx: number, ty: number) {
-        switch (rotation) {
-            case Orientation._0: return ty * 16 - tx * 16;
-            case Orientation._90: return -Location.mh / 2 + 16 + tx * 16 + ty * 16;
-            case Orientation._180: return tx * 16 - ty * 16;
-            case Orientation._270: 
-                // if (ty > 1 || tx > 10) 
-                //     return 10000;
-                return Location.mh * .5 - 16 - tx * 16 - ty * 16;
-            // return - ty * 16 - tx * 16;
-        }
-        return 0;
     }
 }

@@ -2,10 +2,26 @@
 import { Location } from './location';
 
 export enum LandType {
-    Water,
-    Low,
-    Medium,
-    High
+    Water = 0,
+    Low = 1,
+    Medium = 2,
+    High = 3
+}
+
+export enum LandTransition {
+    None = -1,  // open ground/water
+    North = 0,      // 1 touching
+    East = 1,
+    South = 2,
+    West = 3,
+    NE_up = 4,      // 2 touching
+    SE_up = 5,
+    SW_up = 6,
+    NW_up = 7,
+    NE_down = 8,    // 0 touching
+    SE_down = 9,
+    SW_down = 10,
+    NW_down = 11
 }
 
 export class MapTile {
@@ -26,6 +42,8 @@ export class MapTile {
     get landType(): LandType {
         return this._landType;
     }
+
+    landTrasition: LandTransition;
 
     constructor(public location: Location) {
     }
@@ -52,10 +70,10 @@ export class MapTile {
         buffer.closePath();
 
         switch (landType) {
-            case LandType.High: buffer.fillStyle = "DarkGreen"; break;;
-            case LandType.Medium: buffer.fillStyle = "Green"; break;;
-            case LandType.Low: buffer.fillStyle = "Yellow"; break;;
-            case LandType.Water: buffer.fillStyle = "DarkBlue"; break;;
+            case LandType.High: buffer.fillStyle = 'DarkGreen'; break;
+            case LandType.Medium: buffer.fillStyle = 'Green'; break;
+            case LandType.Low: buffer.fillStyle = 'Yellow'; break;
+            case LandType.Water: buffer.fillStyle = 'DarkBlue'; break;
         }
         buffer.fill();
 
@@ -68,7 +86,7 @@ export class MapTile {
         // buffer.strokeStyle = 'White';
         // buffer.stroke();
 
-        image.onload = () => { 
+        image.onload = () => {
 
         };
         image.src = canvas.toDataURL();
