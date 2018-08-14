@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "econlegacy2": {
+    "econlegacy": {
       "root": "",
       "sourceRoot": "src",
       "projectType": "application",
@@ -13,7 +13,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/econlegacy2",
+            "outputPath": "dist/econlegacy",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
@@ -50,18 +50,18 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "econlegacy2:build"
+            "browserTarget": "econlegacy:build"
           },
           "configurations": {
             "production": {
-              "browserTarget": "econlegacy2:build:production"
+              "browserTarget": "econlegacy:build:production"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "econlegacy2:build"
+            "browserTarget": "econlegacy:build"
           }
         },
         "test": {
@@ -95,7 +95,7 @@
         }
       }
     },
-    "econlegacy2-e2e": {
+    "econlegacy-e2e": {
       "root": "e2e/",
       "projectType": "application",
       "architect": {
@@ -103,11 +103,11 @@
           "builder": "@angular-devkit/build-angular:protractor",
           "options": {
             "protractorConfig": "e2e/protractor.conf.js",
-            "devServerTarget": "econlegacy2:serve"
+            "devServerTarget": "econlegacy:serve"
           },
           "configurations": {
             "production": {
-              "devServerTarget": "econlegacy2:serve:production"
+              "devServerTarget": "econlegacy:serve:production"
             }
           }
         },
@@ -123,5 +123,5 @@
       }
     }
   },
-  "defaultProject": "econlegacy2"
+  "defaultProject": "econlegacy"
 }
