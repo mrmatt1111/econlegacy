@@ -1,6 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { HttpModule } from '@angular/http';
+import { HttpClientModule } from '@angular/common/http';
 import { ImageService } from './services/image.service';
 import { AppComponent } from './app.component';
 import { PlanetComponent } from './planet';
@@ -12,7 +12,7 @@ import { PlanetComponent } from './planet';
     AppComponent, PlanetComponent
   ],
   imports: [
-    BrowserModule
+    BrowserModule, HttpClientModule
   ],
   providers: [ImageService],
   bootstrap: [AppComponent]

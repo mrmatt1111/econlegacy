@@ -2,6 +2,7 @@
 import { Location, Direction, Orientation } from './location';
 import { Pixel } from '../shared/pixel';
 import { BitMap } from '../shared/bitmap';
+import { Xliff2 } from '@angular/compiler';
 
 export enum LandType {
     Water = 0,
@@ -30,6 +31,7 @@ export class MapTile {
     static baseImages = [];
     static baseLoadCount: number = 4;
     static blendedImages = [];
+    static natureImages = [];
 
     get baseImageLoaded(): boolean {
         return this.baseImage !== undefined;
@@ -47,8 +49,8 @@ export class MapTile {
     landTrasition: LandTransition;
 
     static blend(lowerType: LandType, direction: LandTransition) {
-        let lower: HTMLImageElement = MapTile.baseImages[lowerType];
-        let upper: HTMLImageElement = MapTile.baseImages[lowerType + 1];
+        let lower: HTMLImageElement = MapTile.baseImages[lowerType][0];
+        let upper: HTMLImageElement = MapTile.baseImages[lowerType + 1][0];
 
         MapTile.blendedImages[lowerType][direction] = new Image();
 
@@ -318,12 +320,55 @@ export class MapTile {
         );
     }
 
-    static initBaseImage(landType: LandType) {
+
+    static shuffle(array) {
+        let counter = array.length;
+
+        // While there are elements in the array
+        while (counter > 0) {
+            // Pick a random index
+            let index = Math.floor(Math.random() * counter);
+
+            // Decrease counter by 1
+            counter--;
+
+            // And swap the last element with it
+            let temp = array[counter];
+            array[counter] = array[index];
+            array[index] = temp;
+        }
+
+        return array;
+    }
+
+    static init(landData) {
+
+        this.baseLoadCount = 4;
+
+        MapTile.baseImages[LandType.Water] = [];
+        MapTile.baseImages[LandType.Low] = [];
+        MapTile.baseImages[LandType.Medium] = [];
+        MapTile.baseImages[LandType.High] = [];
+
         MapTile.blendedImages[LandType.Water] = [];
         MapTile.blendedImages[LandType.Low] = [];
         MapTile.blendedImages[LandType.Medium] = [];
         MapTile.blendedImages[LandType.High] = [];
 
+        MapTile.natureImages[LandType.Water] = [];
+        MapTile.natureImages[LandType.Low] = [];
+        MapTile.natureImages[LandType.Medium] = [];
+        MapTile.natureImages[LandType.High] = [];
+
+        [0, 1, 2].forEach((index) => {
+            MapTile.initBaseImage(LandType.Water, landData.water, index);
+            MapTile.initBaseImage(LandType.Low, landData.low, index);
+            MapTile.initBaseImage(LandType.Medium, landData.medium, index);
+            MapTile.initBaseImage(LandType.High, landData.high, index);
+        });
+    }
+
+    static initBaseImage(landType: LandType, landData, index) {
         let image = new Image();
 
         let canvas = document.createElement('canvas');
@@ -346,28 +391,70 @@ export class MapTile {
             case LandType.Low: buffer.fillStyle = 'Yellow'; break;
             case LandType.Water: buffer.fillStyle = 'DarkBlue'; break;
         }
+
+        buffer.fillStyle = 'Red';
+
+        // if (!pixelData)
         buffer.fill();
-
-        // buffer.fillStyle = 'Yellow';
-        // buffer.fillRect(0, 0, 1, 1);
-
-        // buffer.fillStyle = 'Red';
-        // buffer.fillRect(31, 15, 1, 1);
-
-        // buffer.strokeStyle = 'White';
+        buffer.strokeStyle = 'white';
         // buffer.stroke();
+
+        let imageData = buffer.getImageData(0, 0, canvas.width, canvas.height);
+        let bitmap: BitMap = new BitMap(imageData);
+
+        if (landData) {
+            let bucket = [];
+            let base = landData.baseImages[0];
+
+            for (let i = 0; i < base.length; i++) {
+                let value: string[] = base[i].split(';');
+                let pixel: Pixel = Pixel.fromHex(value[0]);
+                let len = Number(value[1]);
+                for (let j = 0; j < len; j++) {
+                    bucket.push(pixel);
+                }
+            }
+
+            MapTile.shuffle(bucket);
+            MapTile.shuffle(bucket);
+            MapTile.shuffle(bucket);
+
+            let bucketIndex = 0;
+
+            for (let py: number = 0; py < 32; py++) {
+                for (let px: number = 0; px < 64; px++) {
+                    if (bitmap.pixel[px][py].red === 255) {
+                        let toPixel = bucket[bucketIndex++ % bucket.length];
+                        bitmap.pixel[px][py].red = toPixel.red;
+                        bitmap.pixel[px][py].green = toPixel.green;
+                        bitmap.pixel[px][py].blue = toPixel.blue;
+                    }
+                }
+            }
+
+            buffer.putImageData(bitmap.export(), 0, 0);
+        }
 
         image.onload = () => {
             MapTile.baseLoadCount--;
             if (MapTile.baseLoadCount === 0) {
                 MapTile.blendImages();
             }
+
+            MapTile.initNatureImages(landData);
         };
         image.src = canvas.toDataURL();
 
-        MapTile.baseImages[landType] = image;
+        MapTile.baseImages[landType][index] = image;
     }
 
+    static initNatureImages(landData) {
+        if (!landData.nature) {
+            return;
+        }
+    }
+
+    baseImageIndex = Math.floor(3 * Math.random());
     constructor(public location: Location) {
     }
 
@@ -393,6 +480,6 @@ export class MapTile {
     }
 
     get baseImage() {
-        return MapTile.baseImages[this.landType];
+        return MapTile.baseImages[this.landType][this.baseImageIndex];
     }
 }

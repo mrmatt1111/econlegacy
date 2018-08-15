@@ -1,10 +1,13 @@
 import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { ImageService } from '../services/image.service';
 import { LandType, MapTile } from './map-tile';
 import { MapManager } from './map.manager';
 import { Mouse } from './mouse';
 import { Location, Orientation, Direction } from './location';
 import { Pixel } from '../shared/pixel';
+import { BitMap } from '../shared/bitmap';
+import { initChangeDetectorIfExisting } from '@angular/core/src/render3/instructions';
 
 @Component({
     selector: 'app-planet',
@@ -36,11 +39,13 @@ export class PlanetComponent implements OnInit, AfterViewInit {
 
     items = [];
 
+    pixelMediumCount = [];
+
     tick: number = 0;
 
     // location: Location = new Location(0, 0);
 
-    constructor(private imageService: ImageService) {
+    constructor(private http: HttpClient, private imageService: ImageService) {
 
     }
 
@@ -48,18 +53,39 @@ export class PlanetComponent implements OnInit, AfterViewInit {
 
     }
 
-    ngAfterViewInit(): void {
-        MapTile.initBaseImage(LandType.Water);
-        MapTile.initBaseImage(LandType.Low);
-        MapTile.initBaseImage(LandType.Medium);
-        MapTile.initBaseImage(LandType.High);
+    loadPixelData(imageName) {
 
-        this.map.gotoTile(92, 65);
-        // this.map.gotoTile(24, 24);
+    }
+
+    ngAfterViewInit(): void {
+        this.http.get('assets/lands.spring.json').subscribe((data: any) => {
+            MapTile.init(data);
+        });
+
+        let landImage = new Image();
+
+        landImage.onload = () => {
+
+            let context = document.createElement('canvas').getContext('2d');
+
+            context.drawImage(landImage, 0, 0);
+
+            let landBM = new BitMap(context.getImageData(0, 0, context.canvas.width, context.canvas.height));
+
+            this.pixelMediumCount = landBM.tally();
+
+            let debug = landBM.toStringCompress();
+        };
+        // landImage.src = './assets/images/land/earth/L2/land.0.GrassCenter0.gif';
+        landImage.src = './assets/images/land/earth/L2/land.64.MidGrassCenter0.gif';
+        landImage.src = './assets/images/land/earth/L2/land.192.WaterCenter0.gif';
+
+        // this.map.gotoTile(92, 65);
+        this.map.gotoTile(24, 24);
         // this.map.gotoTile(30, 7);
         // this.map.gotoTile(35, 35);
         // this.map.gotoTile(39, 38);
-        // this.map.gotoTile(16, 13);
+        // this.map.gotoTile(7, 0);
         // this.gotoTile(47, 48);
         // this.location.mx = 20;
         // this.location.my = 67;
@@ -135,9 +161,9 @@ export class PlanetComponent implements OnInit, AfterViewInit {
 
             setTimeout(() => this.loop());
         };
-        image.src = '../assets/images/maps/4ci_testworld.gif';
-        // image.src = '../assets/images/maps/4ci_testworld50.gif';
-        // image.src = '../assets/images/maps/4ci_testtiny.gif';
+        image.src = '../assets/4ci_testworld.gif';
+        // image.src = '../assets/4ci_testworld50.gif';
+        // image.src = '../assets/4ci_testtiny.gif';
     }
 
     loop() {
@@ -191,14 +217,15 @@ export class PlanetComponent implements OnInit, AfterViewInit {
         this.buffer.translate(this.center_x - mx * this.map.scale, this.center_y - my * this.map.scale);
         this.buffer.scale(this.map.scale, this.map.scale);
 
-        let count: number = 0;
+        let count: number = -1;
 
         for (let tile of this.map.drawableTiles) {
+            count++;
             if (!tile.baseImageLoaded) {
                 continue;
             }
 
-            if (this.slowTile && ++count > this.tick % (this.map.width * this.map.height)) {
+            if (this.slowTile && count > this.tick % (this.map.width * this.map.height)) {
                 continue;
             }
 

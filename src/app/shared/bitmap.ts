@@ -1,4 +1,5 @@
 import { Pixel } from './pixel';
+import { __core_private_testing_placeholder__ } from '@angular/core/testing';
 
 export class BitMap {
     height: number;
@@ -72,6 +73,52 @@ export class BitMap {
     export(): ImageData {
         return BitMap.toImageData(this.pixel);
     }
+
+    tally() {
+        let tallyThem: { value: string, count: number, hex: string }[] = [];
+        let tally = [];
+
+        for (let x: number = 0; x < this.width; x++) {
+            for (let y: number = 0; y < this.height; y++) {
+                if (this.pixel[x][y].alpha === 0) {
+                    continue;
+                }
+
+                let pixelString = this.pixel[x][y].toString();
+
+                if (tallyThem[pixelString] === undefined) {
+                    tallyThem[pixelString] = {
+                        value: pixelString,
+                        count: 0,
+                        hex: this.pixel[x][y].toHex()
+                    };
+                    tally.push(tallyThem[pixelString]);
+                }
+                tallyThem[pixelString].count++;
+            }
+        }
+
+        tally.sort(function (a, b) { return b.count - a.count; });
+        return tally;
+    }
+
+    toString() {
+        let out: string[] = [];
+
+        this.tally().forEach((value) => {
+            out.push('{ "value": "' + value.value + '", "count": ' + value.count + '}');
+        });
+
+        return out.join(',');
+    }
+
+    toStringCompress() {
+        let out: string[] = [];
+
+        this.tally().forEach((value) => {
+            out.push('"' + value.hex + ';' + value.count + '"');
+        });
+
+        return '[' + out.join(', ') + ']';
+    }
 }
-
-

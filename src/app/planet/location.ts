@@ -114,6 +114,10 @@ export class Location {
         return 0;
     }
 
+    static distance(x0: number, y0: number, x1: number, y1: number) {
+        return Math.sqrt(Math.pow(x1 - x0, 2) + Math.pow(y1 - y0, 2));
+    }
+
     constructor(private _tx: number, private _ty: number, public mx: number = 0, public my: number = 0) {
         this.mx = 0;
         this.my = 0;

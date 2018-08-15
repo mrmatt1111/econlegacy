@@ -30,3 +30,21 @@
 <div *ngIf="items">
     {{items}}
 </div>
+<div *ngIf="pixelMediumCount" style="float:left;">
+    <table>
+        <thead>
+            <tr>
+                <th>Color</th>
+                <th>Count</th>
+            </tr>
+        </thead>
+        <body>
+            <tr *ngFor="let color of pixelMediumCount">
+                <!-- <td [style.background-color]="color.value">&nbsp;</td> -->
+                <td [style.background-color]="color.hex">&nbsp;</td>
+                <td>{{color.value}}</td>
+                <td>{{color.count}}</td>
+            </tr>
+        </body>
+    </table>
+</div>
