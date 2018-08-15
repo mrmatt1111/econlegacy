@@ -26,7 +26,7 @@ export class Location {
     public static mw: number;
     public static mh: number;
 
-    private static orientation: Orientation = Orientation._0;
+    public static orientation: Orientation = Orientation._0;
 
     static setBounds(width: number, height: number) {
         Location.tw = width;

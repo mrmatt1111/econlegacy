@@ -203,9 +203,6 @@ export class PlanetComponent implements OnInit, AfterViewInit {
             }
 
             let image = tile.image;
-            if (this.map.orientation !== Orientation._0) {
-                image = null; // todo!
-            }
 
             this.buffer.drawImage(image ? image : tile.baseImage, tile.location.mx, tile.location.my);
 

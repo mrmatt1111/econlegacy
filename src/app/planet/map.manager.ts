@@ -154,6 +154,7 @@ export class MapManager {
     setOrientation(orientation: Orientation) {
         this.orientation = orientation;
         this.orientate(this.orientation);
+        Location.orientation = orientation;
     }
 
     zoom(into: boolean) {

@@ -1,5 +1,5 @@
 
-import { Location, Direction } from './location';
+import { Location, Direction, Orientation } from './location';
 import { Pixel } from '../shared/pixel';
 import { BitMap } from '../shared/bitmap';
 
@@ -373,7 +373,18 @@ export class MapTile {
 
     get image() {
         if (this.landTrasition >= 0) {
-            let blend = MapTile.blendedImages[this.landType][this.landTrasition];
+            let landTrasition = this.landTrasition;
+            if (Location.orientation !== Orientation._0) {
+                if (landTrasition <= 3) {
+                    landTrasition = (landTrasition + Location.orientation) % 4;
+                } else if (landTrasition <= 7) {
+                    landTrasition = (landTrasition + Location.orientation) % 4 + 4;
+                } else {
+                    landTrasition = (landTrasition + Location.orientation) % 4 + 8;
+                }
+            }
+
+            let blend = MapTile.blendedImages[this.landType][landTrasition];
             if (blend) {
                 return blend;
             }
