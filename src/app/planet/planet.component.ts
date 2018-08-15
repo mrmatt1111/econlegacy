@@ -54,9 +54,12 @@ export class PlanetComponent implements OnInit, AfterViewInit {
         MapTile.initBaseImage(LandType.Medium);
         MapTile.initBaseImage(LandType.High);
 
-        // this.map.gotoTile(92, 65);
+        this.map.gotoTile(92, 65);
         // this.map.gotoTile(24, 24);
-        this.map.gotoTile(10, 15);
+        // this.map.gotoTile(30, 7);
+        // this.map.gotoTile(35, 35);
+        // this.map.gotoTile(39, 38);
+        // this.map.gotoTile(16, 13);
         // this.gotoTile(47, 48);
         // this.location.mx = 20;
         // this.location.my = 67;
@@ -132,8 +135,8 @@ export class PlanetComponent implements OnInit, AfterViewInit {
 
             setTimeout(() => this.loop());
         };
-        // image.src = '../assets/images/maps/4ci_testworld.gif';
-        image.src = '../assets/images/maps/4ci_testworld50.gif';
+        image.src = '../assets/images/maps/4ci_testworld.gif';
+        // image.src = '../assets/images/maps/4ci_testworld50.gif';
         // image.src = '../assets/images/maps/4ci_testtiny.gif';
     }
 
@@ -199,9 +202,14 @@ export class PlanetComponent implements OnInit, AfterViewInit {
                 continue;
             }
 
-            this.buffer.drawImage(tile.baseImage, tile.location.mx, tile.location.my);
+            let image = tile.image;
+            if (this.map.orientation !== Orientation._0) {
+                image = null; // todo!
+            }
 
-            if (tile.landTrasition !== undefined && tile.landTrasition !== -1) { // && tile.landTrasition >= 0) {
+            this.buffer.drawImage(image ? image : tile.baseImage, tile.location.mx, tile.location.my);
+
+            if (!image && tile.landTrasition !== undefined && tile.landTrasition !== -1) { // && tile.landTrasition >= 0) {
                 // this.buffer.fillStyle = "White";
                 if (tile.landType === 0) {
                     this.buffer.fillStyle = 'White';

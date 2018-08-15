@@ -11,7 +11,7 @@ export class MapManager {
     orientation: Orientation = Orientation._0;
     location: Location = new Location(0, 0);
 
-    scale = 1;
+    scale = .5;
     inverseScale = 1 / this.scale;
 
     private _drawableTiles: MapTile[];
@@ -70,7 +70,9 @@ export class MapManager {
                     up.push(LandTransition.West);
                 }
 
-                // if (x === 14 && y === 13) {
+                // (11, 13)
+
+                // if (x === 11 && y === 13) {
                 //     debugger;
                 // }
 
@@ -78,7 +80,11 @@ export class MapManager {
                     if (up.length === 1) {
                         tile.landTrasition = <any>up[0];
                     } else {
-                        tile.landTrasition = <any>up[0] + 4;
+                        if (up[0] === LandTransition.North && up[1] === LandTransition.West) {
+                            tile.landTrasition = LandTransition.NW_up;
+                        } else {
+                            tile.landTrasition = <any>up[0] + 4;
+                        }
                     }
                     continue;
                 }
@@ -103,7 +109,7 @@ export class MapManager {
 
                 neighbor = this.getTile(x - 1, y - 1);
                 if (neighbor && neighbor.landType > tile.landType) {
-                    down.push(LandTransition.NE_up);
+                    down.push(LandTransition.NW_up);
                 }
 
                 if (down.length === 1) {

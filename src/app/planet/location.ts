@@ -35,7 +35,7 @@ export class Location {
         Location.mh = 32 * height;
     }
 
-    static boundPoint(direction: Direction, location: Location): Location {
+    static boundPoint(direction: Direction, location: Location, mw: number = Location.mw, mh: number = Location.mh): Location {
 
         // let realDirection = (direction + Location.orientation) % 4;
 
@@ -61,11 +61,11 @@ export class Location {
 
                     // solve for x:
                     // .5x - .5w - .5h = -.5x + .5mx + my
-                    mx: .5 * location.mx + location.my + .5 * Location.mw + .5 * Location.mh,
+                    mx: .5 * location.mx + location.my + .5 * mw + .5 * mh,
 
                     // solve for y:
                     // 2y + w + h = -2y + mx + 2my
-                    my: (location.mx + 2 * location.my - Location.mw - Location.mh) * .25
+                    my: (location.mx + 2 * location.my - mw - mh) * .25
                 };
             case Direction.South:
                 return <Location>{
@@ -75,11 +75,11 @@ export class Location {
                     // solve x:
                     // -.5(x - w) + .5h = .5(x - mx)  + my
                     // x - w - h = -x + mx - 2my
-                    my: -(location.mx - 2 * location.my - Location.mw - Location.mh) * .25,
+                    my: -(location.mx - 2 * location.my - mw - mh) * .25,
 
                     // solve y:
                     // -2y + w + h = 2y + mx - 2my
-                    mx: (location.mx - 2 * location.my + Location.mw + Location.mh) * .50
+                    mx: (location.mx - 2 * location.my + mw + mh) * .50
                 };
             case Direction.West:
                 return <Location>{
@@ -117,6 +117,12 @@ export class Location {
     constructor(private _tx: number, private _ty: number, public mx: number = 0, public my: number = 0) {
         this.mx = 0;
         this.my = 0;
+    }
+
+    round() {
+        this.mx = Math.round(this.mx);
+        this.my = Math.round(this.my);
+        return this;
     }
 
     toString() {
