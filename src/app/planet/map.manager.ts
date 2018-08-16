@@ -1,9 +1,10 @@
-import { MapTile, LandTransition } from './map-tile';
+import { LandTile } from './land-tile';
+import { LandTransition } from './map.enums';
 import { Location, Orientation, Direction } from './location';
 
 export class MapManager {
 
-    map: MapTile[][];
+    map: LandTile[][];
 
     width: number;
     height: number;
@@ -14,7 +15,7 @@ export class MapManager {
     scale = .5;
     inverseScale = 1 / this.scale;
 
-    private _drawableTiles: MapTile[];
+    private _drawableTiles: LandTile[];
 
     constructor() {
 
@@ -29,7 +30,7 @@ export class MapManager {
             let row = [];
             for (let x = 0; x < width; x++) {
                 row.push(
-                    new MapTile(new Location(x, y))
+                    new LandTile(new Location(x, y))
                 );
             }
             this.map.push(row);
@@ -40,12 +41,12 @@ export class MapManager {
     setupLandTransitions() {
         for (let y = 0; y < this.height; y++) {
             for (let x = 0; x < this.width; x++) {
-                let tile: MapTile = this.getTile(x, y); // this.map[y][x];
+                let tile: LandTile = this.getTile(x, y); // this.map[y][x];
 
                 // let tx = tile.location.tx;
                 // let ty = tile.location.ty;
 
-                let neighbor: MapTile;
+                let neighbor: LandTile;
 
                 let up: LandTransition[] = [];
 
@@ -201,7 +202,7 @@ export class MapManager {
         }
     }
 
-    get drawableTiles(): MapTile[] {
+    get drawableTiles(): LandTile[] {
         return this._drawableTiles;
     }
 

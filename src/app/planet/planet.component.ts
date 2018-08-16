@@ -1,13 +1,14 @@
 import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ImageService } from '../services/image.service';
-import { LandType, MapTile } from './map-tile';
+import { LandTile } from './land-tile';
+import { LandType } from './map.enums';
 import { MapManager } from './map.manager';
 import { Mouse } from './mouse';
 import { Location, Orientation, Direction } from './location';
 import { Pixel } from '../shared/pixel';
 import { BitMap } from '../shared/bitmap';
-import { initChangeDetectorIfExisting } from '@angular/core/src/render3/instructions';
+import { TileLoader } from './loaders/tile.loader';
 
 @Component({
     selector: 'app-planet',
@@ -59,7 +60,7 @@ export class PlanetComponent implements OnInit, AfterViewInit {
 
     ngAfterViewInit(): void {
         this.http.get('assets/lands.spring.json').subscribe((data: any) => {
-            MapTile.init(data);
+            LandTile.loader.init(data);
         });
 
         let landImage = new Image();
@@ -77,11 +78,11 @@ export class PlanetComponent implements OnInit, AfterViewInit {
             let debug = landBM.toStringCompress();
         };
         // landImage.src = './assets/images/land/earth/L2/land.0.GrassCenter0.gif';
-        landImage.src = './assets/images/land/earth/L2/land.64.MidGrassCenter0.gif';
-        landImage.src = './assets/images/land/earth/L2/land.192.WaterCenter0.gif';
+        // landImage.src = './assets/images/land/earth/L2/land.64.MidGrassCenter0.gif';
+        // landImage.src = './assets/images/land/earth/L2/land.192.WaterCenter0.gif';
 
-        // this.map.gotoTile(92, 65);
-        this.map.gotoTile(24, 24);
+        this.map.gotoTile(92, 65);
+        // this.map.gotoTile(24, 24);
         // this.map.gotoTile(30, 7);
         // this.map.gotoTile(35, 35);
         // this.map.gotoTile(39, 38);
@@ -138,7 +139,7 @@ export class PlanetComponent implements OnInit, AfterViewInit {
                     values.next().value
                 );
 
-                let tile: MapTile = this.map.getTile(x, y);
+                let tile: LandTile = this.map.getTile(x, y);
                 if (pixel.equals(66, 130, 126)) {
                     tile.landType = LandType.High;
                 } else if (pixel.equals(145, 138, 78)) {

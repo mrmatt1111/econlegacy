@@ -5,9 +5,9 @@ export class Pixel {
         hex = hex.replace('#', '');
 
         return new Pixel(
-            parseInt('0x' + hex.substr(0, 2)),
-            parseInt('0x' + hex.substr(2, 2)),
-            parseInt('0x' + hex.substr(4, 2)),
+            parseInt(hex.substr(0, 2), 16),
+            parseInt(hex.substr(2, 2), 16),
+            parseInt(hex.substr(4, 2), 16),
         );
     }
 
@@ -16,6 +16,16 @@ export class Pixel {
         this.green = green;
         this.blue = blue;
         this.alpha = alpha;
+    }
+
+    copy(pixel: Pixel, retainCurrentAlpha: boolean = false): void {
+        this.red = pixel.red;
+        this.green = pixel.green;
+        this.blue = pixel.blue;
+
+        if (!retainCurrentAlpha) {
+            this.alpha = pixel.alpha;
+        }
     }
 
     equals(red: number, green: number, blue: number, alpha: number = 255) {

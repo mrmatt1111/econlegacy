@@ -1,75 +1,138 @@
+import { Location, Direction, Orientation } from '../location';
+import { Pixel } from '../../shared/pixel';
+import { BitMap } from '../../shared/bitmap';
+import { Utils } from '../../shared/utils';
+import { LandType, LandTransition } from '../map.enums';
+import { CanvasImage } from '../../shared/canvas-image';
 
-import { Location, Direction, Orientation } from './location';
-import { Pixel } from '../shared/pixel';
-import { BitMap } from '../shared/bitmap';
-import { Xliff2 } from '@angular/compiler';
+export class TileLoader {
+    base = [];
+    baseLoadCount: number = 4;
+    blended = [];
+    nature = [];
 
-export enum LandType {
-    Water = 0,
-    Low = 1,
-    Medium = 2,
-    High = 3
-}
+    init(landData) {
+        this.baseLoadCount = 4 * 3;
 
-export enum LandTransition {
-    None = -1,  // open ground/water
-    North = 0,      // 1 touching
-    East = 1,
-    South = 2,
-    West = 3,
-    NE_up = 4,      // 2 touching
-    SE_up = 5,
-    SW_up = 6,
-    NW_up = 7,
-    NE_down = 8,    // 0 touching
-    SE_down = 9,
-    SW_down = 10,
-    NW_down = 11
-}
+        [LandType.Water, LandType.Low, LandType.Medium, LandType.High]
+            .forEach((landType) => {
+                this.base[landType] = [];
+                this.blended[landType] = [];
+                this.nature[landType] = [];
+            });
 
-export class MapTile {
-    static baseImages = [];
-    static baseLoadCount: number = 4;
-    static blendedImages = [];
-    static natureImages = [];
-
-    get baseImageLoaded(): boolean {
-        return this.baseImage !== undefined;
+        [0, 1, 2].forEach((index) => {
+            this.initBaseImage(LandType.Water, landData.water, index);
+            this.initBaseImage(LandType.Low, landData.low, index);
+            this.initBaseImage(LandType.Medium, landData.medium, index);
+            this.initBaseImage(LandType.High, landData.high, index);
+        });
     }
 
-    private _landType: LandType;
-    set landType(landType: LandType) {
-        this._landType = landType;
+    initBaseImage(landType: LandType, landData, index) {
+        if (!landData) {
+            throw { message: '"landData" is missing, cannot load base image.' };
+        }
+
+        let image: CanvasImage = CanvasImage.create(64, 32);
+        this.base[landType][index] = image.image;
+
+        // draw a red box... and then replace any thing that is red :-D
+        image.ctx.fillStyle = 'Red';
+        image.ctx.beginPath();
+        image.ctx.moveTo(0, 16);
+        image.ctx.lineTo(32, 0);
+        image.ctx.lineTo(64, 16);
+        image.ctx.lineTo(32, 32);
+        image.ctx.closePath();
+        image.ctx.fill();
+
+        // now get the pixels we can poke them into what we want them to be
+        let bitmap: BitMap = image.getBitMap();
+
+        let colorProbabilities = landData.baseColors[0];
+
+        // fill a bucket with tropical fish and bits of soil and grass
+        let bucket = [];
+        for (let i = 0; i < colorProbabilities.length; i++) {
+            let value: string[] = colorProbabilities[i].split(';'); // e.q. #928c51;127 <- use this hex color about that many times
+            let pixel: Pixel = Pixel.fromHex(value[0]);
+            let len = Number(value[1]);
+            for (let j = 0; j < len; j++) {
+                bucket.push(pixel);
+            }
+        }
+
+        // i know, i know... more than once is pointless
+        Utils.shuffle(bucket, 3);
+
+        let bucketIndex = 0;
+
+        for (let py: number = 0; py < 32; py++) {
+            for (let px: number = 0; px < 64; px++) {
+                if (bitmap.pixel[px][py].red === 255) {
+                    let toPixel = bucket[bucketIndex++ % bucket.length]; // refill the bucket if needed
+                    bitmap.pixel[px][py].copy(toPixel, true);
+                }
+            }
+        }
+
+        image.putBitMap(bitmap);
+
+        image.onload = () => {
+            this.baseLoadCount--;
+            if (this.baseLoadCount === 0) {
+                this.blendImages();
+            }
+
+            this.initNatureImages(landData);
+        };
+        image.send();
     }
 
-    get landType(): LandType {
-        return this._landType;
+    blendImages() {
+        [LandType.Water, LandType.Low, LandType.Medium].forEach(
+            (landType) => {
+                this.blend(landType, LandTransition.North);
+                this.blend(landType, LandTransition.East);
+                this.blend(landType, LandTransition.South);
+                this.blend(landType, LandTransition.West);
+
+                this.blend(landType, LandTransition.NE_up);
+                this.blend(landType, LandTransition.SE_up);
+                this.blend(landType, LandTransition.SW_up);
+                this.blend(landType, LandTransition.NW_up);
+
+                this.blend(landType, LandTransition.NE_down);
+                this.blend(landType, LandTransition.SE_down);
+                this.blend(landType, LandTransition.SW_down);
+                this.blend(landType, LandTransition.NW_down);
+            }
+        );
     }
 
-    landTrasition: LandTransition;
+    initNatureImages(landData) {
+        if (!landData.nature) {
+            return;
+        }
+    }
 
-    static blend(lowerType: LandType, direction: LandTransition) {
-        let lower: HTMLImageElement = MapTile.baseImages[lowerType][0];
-        let upper: HTMLImageElement = MapTile.baseImages[lowerType + 1][0];
-
-        MapTile.blendedImages[lowerType][direction] = new Image();
-
-        let canvas = document.createElement('canvas');
-        let image2 = document.createElement('canvas');
+    blend(lowerType: LandType, transition: LandTransition) {
+        let lower: HTMLImageElement = this.base[lowerType][0];
+        let upper: HTMLImageElement = this.base[lowerType + 1][0];
 
         let w = 64;
         let h = 32;
 
-        canvas.width = w;
-        canvas.height = h;
+        // fill with lower land image
+        let image = CanvasImage.load(this.base[lowerType][0]);
+        this.blended[lowerType][transition] = image.image;
 
-        let buffer1: CanvasRenderingContext2D = canvas.getContext('2d');
-        let buffer2: CanvasRenderingContext2D = image2.getContext('2d');
+        // fill with upper land image
+        let upperImage = CanvasImage.load(this.base[lowerType + 1][0]);
+        let upperBM = upperImage.getBitMap();
 
         let maxD = 1 / Math.sqrt(32 * 32 + 16 * 16);
-
-        buffer2.drawImage(upper, 0, 0);
-        let upperBM = new BitMap(buffer2.getImageData(0, 0, w, h));
 
         for (let y = 0; y < h; y++) {
             for (let x = 0; x < w; x++) {
@@ -77,7 +140,7 @@ export class MapTile {
 
                 let sparkle = Math.random() / 75;
 
-                switch (direction) {
+                switch (transition) {
                     case LandTransition.North:
                         border = Location.boundPoint(Direction.South, <Location>{ mx: x, my: y - 24 }, 16, 8);
 
@@ -262,7 +325,7 @@ export class MapTile {
 
 
                 // *** todo-start: refactor this ***
-                if (direction <= 3) {
+                if (transition <= 3) {
                     if (d > .60) {
                         d = 1;
                     } else if (d < .50 && d >= .45) {
@@ -272,7 +335,7 @@ export class MapTile {
                     } else if (d < .35) {
                         d = 0;
                     }
-                } else if (direction <= 11) {
+                } else if (transition <= 11) {
                     if (d < .36) {
                         d = 0;
                     } else if (d < .40 && d >= .35) {
@@ -291,195 +354,9 @@ export class MapTile {
             }
         }
 
-        buffer2.putImageData(upperBM.export(), 0, 0);
+        upperImage.putBitMap(upperBM);
 
-        buffer1.drawImage(lower, 0, 0);
-        buffer1.drawImage(image2, 0, 0);
-
-        MapTile.blendedImages[lowerType][direction].src = canvas.toDataURL();
-    }
-
-    static blendImages() {
-        [LandType.Water, LandType.Low, LandType.Medium].forEach(
-            (landType) => {
-                MapTile.blend(landType, LandTransition.North);
-                MapTile.blend(landType, LandTransition.East);
-                MapTile.blend(landType, LandTransition.South);
-                MapTile.blend(landType, LandTransition.West);
-
-                MapTile.blend(landType, LandTransition.NE_up);
-                MapTile.blend(landType, LandTransition.SE_up);
-                MapTile.blend(landType, LandTransition.SW_up);
-                MapTile.blend(landType, LandTransition.NW_up);
-
-                MapTile.blend(landType, LandTransition.NE_down);
-                MapTile.blend(landType, LandTransition.SE_down);
-                MapTile.blend(landType, LandTransition.SW_down);
-                MapTile.blend(landType, LandTransition.NW_down);
-            }
-        );
-    }
-
-
-    static shuffle(array) {
-        let counter = array.length;
-
-        // While there are elements in the array
-        while (counter > 0) {
-            // Pick a random index
-            let index = Math.floor(Math.random() * counter);
-
-            // Decrease counter by 1
-            counter--;
-
-            // And swap the last element with it
-            let temp = array[counter];
-            array[counter] = array[index];
-            array[index] = temp;
-        }
-
-        return array;
-    }
-
-    static init(landData) {
-
-        this.baseLoadCount = 4;
-
-        MapTile.baseImages[LandType.Water] = [];
-        MapTile.baseImages[LandType.Low] = [];
-        MapTile.baseImages[LandType.Medium] = [];
-        MapTile.baseImages[LandType.High] = [];
-
-        MapTile.blendedImages[LandType.Water] = [];
-        MapTile.blendedImages[LandType.Low] = [];
-        MapTile.blendedImages[LandType.Medium] = [];
-        MapTile.blendedImages[LandType.High] = [];
-
-        MapTile.natureImages[LandType.Water] = [];
-        MapTile.natureImages[LandType.Low] = [];
-        MapTile.natureImages[LandType.Medium] = [];
-        MapTile.natureImages[LandType.High] = [];
-
-        [0, 1, 2].forEach((index) => {
-            MapTile.initBaseImage(LandType.Water, landData.water, index);
-            MapTile.initBaseImage(LandType.Low, landData.low, index);
-            MapTile.initBaseImage(LandType.Medium, landData.medium, index);
-            MapTile.initBaseImage(LandType.High, landData.high, index);
-        });
-    }
-
-    static initBaseImage(landType: LandType, landData, index) {
-        let image = new Image();
-
-        let canvas = document.createElement('canvas');
-
-        canvas.width = 64;
-        canvas.height = 32;
-
-        let buffer: CanvasRenderingContext2D = canvas.getContext('2d');
-
-        buffer.beginPath();
-        buffer.moveTo(0, 16);
-        buffer.lineTo(32, 0);
-        buffer.lineTo(64, 16);
-        buffer.lineTo(32, 32);
-        buffer.closePath();
-
-        switch (landType) {
-            case LandType.High: buffer.fillStyle = 'DarkGreen'; break;
-            case LandType.Medium: buffer.fillStyle = 'Green'; break;
-            case LandType.Low: buffer.fillStyle = 'Yellow'; break;
-            case LandType.Water: buffer.fillStyle = 'DarkBlue'; break;
-        }
-
-        buffer.fillStyle = 'Red';
-
-        // if (!pixelData)
-        buffer.fill();
-        buffer.strokeStyle = 'white';
-        // buffer.stroke();
-
-        let imageData = buffer.getImageData(0, 0, canvas.width, canvas.height);
-        let bitmap: BitMap = new BitMap(imageData);
-
-        if (landData) {
-            let bucket = [];
-            let base = landData.baseImages[0];
-
-            for (let i = 0; i < base.length; i++) {
-                let value: string[] = base[i].split(';');
-                let pixel: Pixel = Pixel.fromHex(value[0]);
-                let len = Number(value[1]);
-                for (let j = 0; j < len; j++) {
-                    bucket.push(pixel);
-                }
-            }
-
-            MapTile.shuffle(bucket);
-            MapTile.shuffle(bucket);
-            MapTile.shuffle(bucket);
-
-            let bucketIndex = 0;
-
-            for (let py: number = 0; py < 32; py++) {
-                for (let px: number = 0; px < 64; px++) {
-                    if (bitmap.pixel[px][py].red === 255) {
-                        let toPixel = bucket[bucketIndex++ % bucket.length];
-                        bitmap.pixel[px][py].red = toPixel.red;
-                        bitmap.pixel[px][py].green = toPixel.green;
-                        bitmap.pixel[px][py].blue = toPixel.blue;
-                    }
-                }
-            }
-
-            buffer.putImageData(bitmap.export(), 0, 0);
-        }
-
-        image.onload = () => {
-            MapTile.baseLoadCount--;
-            if (MapTile.baseLoadCount === 0) {
-                MapTile.blendImages();
-            }
-
-            MapTile.initNatureImages(landData);
-        };
-        image.src = canvas.toDataURL();
-
-        MapTile.baseImages[landType][index] = image;
-    }
-
-    static initNatureImages(landData) {
-        if (!landData.nature) {
-            return;
-        }
-    }
-
-    baseImageIndex = Math.floor(3 * Math.random());
-    constructor(public location: Location) {
-    }
-
-    get image() {
-        if (this.landTrasition >= 0) {
-            let landTrasition = this.landTrasition;
-            if (Location.orientation !== Orientation._0) {
-                if (landTrasition <= 3) {
-                    landTrasition = (landTrasition + Location.orientation) % 4;
-                } else if (landTrasition <= 7) {
-                    landTrasition = (landTrasition + Location.orientation) % 4 + 4;
-                } else {
-                    landTrasition = (landTrasition + Location.orientation) % 4 + 8;
-                }
-            }
-
-            let blend = MapTile.blendedImages[this.landType][landTrasition];
-            if (blend) {
-                return blend;
-            }
-        }
-        return undefined;
-    }
-
-    get baseImage() {
-        return MapTile.baseImages[this.landType][this.baseImageIndex];
+        image.ctx.drawImage(upperImage.canvas, 0, 0);
+        image.send();
     }
 }
