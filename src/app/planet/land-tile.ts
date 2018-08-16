@@ -1,6 +1,6 @@
-import { Location, Direction, Orientation } from './location';
+import { Location } from './location';
 import { TileLoader } from './loaders/tile.loader';
-import { LandType, LandTransition } from './map.enums';
+import { LandType, LandTransition, Orientation } from './planet.enums';
 
 export class LandTile {
 
@@ -25,6 +25,17 @@ export class LandTile {
     constructor(public location: Location) {
     }
 
+    getContextRect(): ClientRect {
+        return <ClientRect>{
+            width: 32,
+            height: 32,
+            top: this.location.y,
+            bottom: this.location.y + 32,
+            left: this.location.x,
+            right: this.location.x + 64
+        };
+    }
+
     get image() {
         if (this.landTrasition >= 0) {
             let landTrasition = this.landTrasition;
@@ -47,6 +58,9 @@ export class LandTile {
     }
 
     get baseImage() {
+        if (!LandTile.loader.base[this.landType]) {
+            return undefined;
+        }
         return LandTile.loader.base[this.landType][this.baseImageIndex];
     }
 }

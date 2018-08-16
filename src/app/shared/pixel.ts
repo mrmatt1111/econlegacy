@@ -11,6 +11,20 @@ export class Pixel {
         );
     }
 
+    static next(values: IterableIterator<number>) {
+        let next = values.next();
+        if (!next || next.done === true || next.value === undefined) {
+            return undefined;
+        }
+
+        return new Pixel(
+            next.value,
+            values.next().value,
+            values.next().value,
+            values.next().value
+        );
+    }
+
     set(red: number, green: number, blue: number, alpha: number = 255) {
         this.red = red;
         this.green = green;
@@ -32,22 +46,20 @@ export class Pixel {
         return red === this.red && green === this.green && blue === this.blue && alpha === this.alpha;
     }
 
-    toString(): string {
+    toString(format: string = 'rgba'): string {
         let out: string[] = [];
-        out.push('rgba(');
-        out.push(this.red + ',');
-        out.push(this.green + ',');
-        out.push(this.blue + ',');
-        out.push(this.alpha + ')');
-        return out.join('');
-    }
-
-    toHex(): string {
-        let out: string[] = [];
-        out.push('#');
-        out.push(this.red.toString(16));
-        out.push(this.green.toString(16));
-        out.push(this.blue.toString(16));
+        if (format === 'rgba') {
+            out.push('rgba(');
+            out.push(this.red + ',');
+            out.push(this.green + ',');
+            out.push(this.blue + ',');
+            out.push(this.alpha + ')');
+        } else if (format === 'hex') {
+            out.push('#');
+            out.push(this.red.toString(16));
+            out.push(this.green.toString(16));
+            out.push(this.blue.toString(16));
+        }
         return out.join('');
     }
 }

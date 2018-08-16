@@ -1,5 +1,4 @@
 import { Pixel } from './pixel';
-import { __core_private_testing_placeholder__ } from '@angular/core/testing';
 
 export class BitMap {
     height: number;
@@ -17,28 +16,16 @@ export class BitMap {
         let x = 0;
         let y = 0;
         let w = imageData.width;
-        let h = imageData.height;
 
         let values = imageData.data.values();
         let map: Pixel[][] = [];
         // give a space for 'y'
-        for (let xx = 0; xx < w; xx++) {
-            map[xx] = [];
+        for (let i = 0; i < w; i++) {
+            map[i] = [];
         }
 
-        while (true) {
-            let next = values.next();
-            if (!next || next.done === true || next.value === undefined) {
-                break;
-            }
-
-            let pixel = new Pixel(
-                next.value,
-                values.next().value,
-                values.next().value,
-                values.next().value
-            );
-
+        let pixel: Pixel;
+        while (pixel = Pixel.next(values)) {
             map[x][y] = pixel;
 
             if (++x === w) {
@@ -90,7 +77,7 @@ export class BitMap {
                     tallyThem[pixelString] = {
                         value: pixelString,
                         count: 0,
-                        hex: this.pixel[x][y].toHex()
+                        hex: this.pixel[x][y].toString('hex')
                     };
                     tally.push(tallyThem[pixelString]);
                 }
@@ -102,23 +89,25 @@ export class BitMap {
         return tally;
     }
 
-    toString() {
+    toString(format: string = 'full') {
         let out: string[] = [];
 
-        this.tally().forEach((value) => {
-            out.push('{ "value": "' + value.value + '", "count": ' + value.count + '}');
-        });
+        if (format === 'full') {
+            this.tally().forEach((value) => {
+                if (format === 'full') {
+                    out.push('{ "value": "' + value.value + '", "count": ' + value.count + '}');
+                }
+            });
 
-        return out.join(',');
-    }
+            return out.join(',');
+        } else if (format === 'short') {
+            this.tally().forEach((value) => {
+                out.push('"' + value.hex + ';' + value.count + '"');
+            });
 
-    toStringCompress() {
-        let out: string[] = [];
+            return '[' + out.join(', ') + ']';
+        }
 
-        this.tally().forEach((value) => {
-            out.push('"' + value.hex + ';' + value.count + '"');
-        });
-
-        return '[' + out.join(', ') + ']';
+        return 'bitmap: unknown format: ' + format;
     }
 }

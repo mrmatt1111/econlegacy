@@ -1,6 +1,7 @@
 import { LandTile } from './land-tile';
-import { LandTransition } from './map.enums';
-import { Location, Orientation, Direction } from './location';
+import { LandTransition, Orientation } from './planet.enums';
+import { Location } from './location';
+import { EventEmitter } from '@angular/core';
 
 export class MapManager {
 
@@ -14,6 +15,9 @@ export class MapManager {
 
     scale = .5;
     inverseScale = 1 / this.scale;
+
+    onZoom: EventEmitter<number> = new EventEmitter<number>();
+    onRotate: EventEmitter<Orientation> = new EventEmitter<Orientation>();
 
     private _drawableTiles: LandTile[];
 
@@ -131,12 +135,13 @@ export class MapManager {
     rotateRight() {
         this.orientation = ++this.orientation % 4;
 
-        let x = this.location.mx;
-        let y = this.location.my;
+        let x = this.location.x;
+        let y = this.location.y;
 
         // todo: move current position to the rotated position
 
         this.setOrientation(this.orientation);
+        this.onRotate.emit(this.orientation);
     }
 
     rotateLeft() {
@@ -144,12 +149,13 @@ export class MapManager {
             this.orientation = Orientation._270;
         }
 
-        let x = this.location.mx;
-        let y = this.location.my;
+        let x = this.location.x;
+        let y = this.location.y;
 
         // todo: move current position to the rotated position
 
         this.setOrientation(this.orientation);
+        this.onRotate.emit(this.orientation);
     }
 
     setOrientation(orientation: Orientation) {
@@ -161,13 +167,17 @@ export class MapManager {
     zoom(into: boolean) {
         if (into) {
             this.scale = this.scale * 2;
-            if (this.scale > 4) {
+            if (this.scale > 4.1) {
                 this.scale = 4;
+            } else {
+                this.onZoom.emit(this.scale);
             }
         } else {
             this.scale = this.scale * .5;
             if (this.scale < .24) {
                 this.scale = .25;
+            } else {
+                this.onZoom.emit(this.scale);
             }
         }
     }
@@ -186,12 +196,6 @@ export class MapManager {
 
     gatherDrawableTiles() {
         this._drawableTiles = [];
-
-        // if (true === true) {
-        //     this._drawableTiles.push(this.map[0][0]);
-        //     return;
-        // }
-
 
         let row;
         for (let y = 0; y < this.height; y++) {

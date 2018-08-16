@@ -1,8 +1,8 @@
-import { Location, Direction, Orientation } from '../location';
+import { Location, Point } from '../location';
 import { Pixel } from '../../shared/pixel';
 import { BitMap } from '../../shared/bitmap';
 import { Utils } from '../../shared/utils';
-import { LandType, LandTransition } from '../map.enums';
+import { LandType, LandTransition, Direction } from '../planet.enums';
 import { CanvasImage } from '../../shared/canvas-image';
 
 export class TileLoader {
@@ -136,134 +136,135 @@ export class TileLoader {
 
         for (let y = 0; y < h; y++) {
             for (let x = 0; x < w; x++) {
-                let border, dx, dy, d, d1, d2, borderNorth, borderEast, borderSouth, borderWest, d1x, d1y, d2x, d2y;
+                let border: Point;
+                let dx, dy, d, d1, d2, borderNorth: Point, borderEast: Point, borderSouth: Point, borderWest: Point, d1x, d1y, d2x, d2y;
 
                 let sparkle = Math.random() / 75;
 
                 switch (transition) {
                     case LandTransition.North:
-                        border = Location.boundPoint(Direction.South, <Location>{ mx: x, my: y - 24 }, 16, 8);
+                        border = Location.boundPoint(Direction.South, <Location>{ x: x, y: y - 24 }, 16, 8);
 
-                        dx = x - Math.round(border.mx);
-                        dy = y - Math.round(border.my + 32);
+                        dx = x - Math.round(border.x);
+                        dy = y - Math.round(border.y + 32);
 
                         d = Math.sqrt(dx * dx + dy * dy) * maxD + sparkle;
                         break;
                     case LandTransition.East:
-                        border = Location.boundPoint(Direction.East, <Location>{ mx: x, my: y - 24 }, 64, 32);
+                        border = Location.boundPoint(Direction.East, <Location>{ x: x, y: y - 24 }, 64, 32);
 
-                        dx = x - Math.round(border.mx);
-                        dy = y - Math.round(border.my + 32);
+                        dx = x - Math.round(border.x);
+                        dy = y - Math.round(border.y + 32);
 
                         d = 1 - Math.sqrt(dx * dx + dy * dy) * maxD + sparkle;
                         break;
                     case LandTransition.West:
-                        border = Location.boundPoint(Direction.East, <Location>{ mx: x, my: y - 24 }, 48, 24);
+                        border = Location.boundPoint(Direction.East, <Location>{ x: x, y: y - 24 }, 48, 24);
 
-                        dx = x - Math.round(border.mx);
-                        dy = y - Math.round(border.my + 32);
+                        dx = x - Math.round(border.x);
+                        dy = y - Math.round(border.y + 32);
 
                         d = Math.sqrt(dx * dx + dy * dy) * maxD + sparkle;
                         break;
                     case LandTransition.South:
-                        border = Location.boundPoint(Direction.South, <Location>{ mx: x, my: y - 24 }, 36, 16);
+                        border = Location.boundPoint(Direction.South, <Location>{ x: x, y: y - 24 }, 36, 16);
 
-                        dx = x - Math.round(border.mx);
-                        dy = y - Math.round(border.my + 32);
+                        dx = x - Math.round(border.x);
+                        dy = y - Math.round(border.y + 32);
 
                         d = 1 - Math.sqrt(dx * dx + dy * dy) * maxD + sparkle;
                         break;
                     case LandTransition.NE_up:
-                        borderNorth = Location.boundPoint(Direction.South, <Location>{ mx: x, my: y - 24 }, 24, 12); // middle
-                        borderEast = Location.boundPoint(Direction.East, <Location>{ mx: x, my: y - 24 }, 16, 8);    // middle
+                        borderNorth = Location.boundPoint(Direction.South, <Location>{ x: x, y: y - 24 }, 24, 12); // middle
+                        borderEast = Location.boundPoint(Direction.East, <Location>{ x: x, y: y - 24 }, 16, 8);    // middle
 
-                        d1x = x - Math.round(borderNorth.mx);
-                        d1y = y - Math.round(borderNorth.my + 32);
+                        d1x = x - Math.round(borderNorth.x);
+                        d1y = y - Math.round(borderNorth.y + 32);
 
                         d1 = Math.sqrt(d1x * d1x + d1y * d1y) * maxD;
 
-                        d2x = x - Math.round(borderEast.mx);
-                        d2y = y - Math.round(borderEast.my + 32);
+                        d2x = x - Math.round(borderEast.x);
+                        d2y = y - Math.round(borderEast.y + 32);
 
                         d2 = Math.sqrt(d2x * d2x + d2y * d2y) * maxD;
 
                         d = (d1 + d2) / 2 + sparkle;
                         break;
                     case LandTransition.SE_up:
-                        borderSouth = Location.boundPoint(Direction.South, <Location>{ mx: x, my: y - 24 }, 24, 12);
-                        borderEast = Location.boundPoint(Direction.East, <Location>{ mx: x, my: y - 24 }, 16, 8);
+                        borderSouth = Location.boundPoint(Direction.South, <Location>{ x: x, y: y - 24 }, 24, 12);
+                        borderEast = Location.boundPoint(Direction.East, <Location>{ x: x, y: y - 24 }, 16, 8);
 
-                        d1x = x - Math.round(borderSouth.mx);
-                        d1x = y - Math.round(borderSouth.my + 32);
+                        d1x = x - Math.round(borderSouth.x);
+                        d1x = y - Math.round(borderSouth.y + 32);
 
                         d1 = 1 - Math.sqrt(d1x * d1x + d1x * d1x) * maxD;
 
-                        d2x = x - Math.round(borderEast.mx);
-                        d2y = y - Math.round(borderEast.my + 32);
+                        d2x = x - Math.round(borderEast.x);
+                        d2y = y - Math.round(borderEast.y + 32);
 
                         d2 = Math.sqrt(d2x * d2x + d2y * d2y) * maxD;
 
                         d = (d1 + d2) / 2 + sparkle;
                         break;
                     case LandTransition.SW_up:
-                        borderSouth = Location.boundPoint(Direction.South, <Location>{ mx: x, my: y - 24 }, 24, 12);
-                        borderWest = Location.boundPoint(Direction.East, <Location>{ mx: x, my: y - 24 }, 56, 28);
+                        borderSouth = Location.boundPoint(Direction.South, <Location>{ x: x, y: y - 24 }, 24, 12);
+                        borderWest = Location.boundPoint(Direction.East, <Location>{ x: x, y: y - 24 }, 56, 28);
 
-                        d1x = x - Math.round(borderSouth.mx);
-                        d1x = y - Math.round(borderSouth.my + 32);
+                        d1x = x - Math.round(borderSouth.x);
+                        d1x = y - Math.round(borderSouth.y + 32);
 
                         d1 = 1 - Math.sqrt(d1x * d1x + d1x * d1x) * maxD;
 
-                        d2x = x - Math.round(borderWest.mx);
-                        d2y = y - Math.round(borderWest.my + 32);
+                        d2x = x - Math.round(borderWest.x);
+                        d2y = y - Math.round(borderWest.y + 32);
 
                         d2 = Math.sqrt(d2x * d2x + d2y * d2y) * maxD;
 
                         d = (d1 + d2) / 2 + sparkle;
                         break;
                     case LandTransition.NW_up:
-                        borderNorth = Location.boundPoint(Direction.South, <Location>{ mx: x, my: y - 24 }, 24, 12); // middle
-                        borderWest = Location.boundPoint(Direction.East, <Location>{ mx: x, my: y - 24 }, 24, 12);
+                        borderNorth = Location.boundPoint(Direction.South, <Location>{ x: x, y: y - 24 }, 24, 12); // middle
+                        borderWest = Location.boundPoint(Direction.East, <Location>{ x: x, y: y - 24 }, 24, 12);
 
-                        d1x = x - Math.round(borderNorth.mx);
-                        d1x = y - Math.round(borderNorth.my + 32);
+                        d1x = x - Math.round(borderNorth.x);
+                        d1x = y - Math.round(borderNorth.y + 32);
 
                         d1 = Math.sqrt(d1x * d1x + d1x * d1x) * maxD;
 
-                        d2x = x - Math.round(borderWest.mx);
-                        d2y = y - Math.round(borderWest.my + 32);
+                        d2x = x - Math.round(borderWest.x);
+                        d2y = y - Math.round(borderWest.y + 32);
 
                         d2 = 1 - Math.sqrt(d2x * d2x + d2y * d2y) * maxD;
 
                         d = (d1 + d2) / 2 + sparkle;
                         break;
                     case LandTransition.NE_down:
-                        borderNorth = Location.boundPoint(Direction.North, <Location>{ mx: x, my: y - 24 }, 48, 24);
-                        borderEast = Location.boundPoint(Direction.East, <Location>{ mx: x, my: y - 24 }, 64 + 12, 32 + 6);
+                        borderNorth = Location.boundPoint(Direction.North, <Location>{ x: x, y: y - 24 }, 48, 24);
+                        borderEast = Location.boundPoint(Direction.East, <Location>{ x: x, y: y - 24 }, 64 + 12, 32 + 6);
 
-                        d1x = x - Math.round(borderNorth.mx);
-                        d1x = y - Math.round(borderNorth.my + 32);
+                        d1x = x - Math.round(borderNorth.x);
+                        d1x = y - Math.round(borderNorth.y + 32);
 
                         d1 = Math.sqrt(d1x * d1x + d1x * d1x) * maxD;
 
-                        d2x = x - Math.round(borderEast.mx);
-                        d2y = y - Math.round(borderEast.my + 32);
+                        d2x = x - Math.round(borderEast.x);
+                        d2y = y - Math.round(borderEast.y + 32);
 
                         d2 = 1 - Math.sqrt(d2x * d2x + d2y * d2y) * maxD;
 
                         d = (d1 + d2) / 2 + sparkle;
                         break;
                     case LandTransition.SE_down:
-                        borderSouth = Location.boundPoint(Direction.South, <Location>{ mx: x, my: y - 24 }, 48 - 8, 24 + 4);
-                        borderEast = Location.boundPoint(Direction.East, <Location>{ mx: x, my: y - 24 }, 64 + 12, 32 + 6);
+                        borderSouth = Location.boundPoint(Direction.South, <Location>{ x: x, y: y - 24 }, 48 - 8, 24 + 4);
+                        borderEast = Location.boundPoint(Direction.East, <Location>{ x: x, y: y - 24 }, 64 + 12, 32 + 6);
 
-                        d1x = x - Math.round(borderSouth.mx);
-                        d1x = y - Math.round(borderSouth.my + 32);
+                        d1x = x - Math.round(borderSouth.x);
+                        d1x = y - Math.round(borderSouth.y + 32);
 
                         d1 = 1 - Math.sqrt(d1x * d1x + d1x * d1x) * maxD;
 
-                        d2x = x - Math.round(borderEast.mx);
-                        d2y = y - Math.round(borderEast.my + 32);
+                        d2x = x - Math.round(borderEast.x);
+                        d2y = y - Math.round(borderEast.y + 32);
 
                         d2 = 1 - Math.sqrt(d2x * d2x + d2y * d2y) * maxD;
 
@@ -274,48 +275,48 @@ export class TileLoader {
                         }
                         break;
                     case LandTransition.SW_down:
-                        borderSouth = Location.boundPoint(Direction.South, <Location>{ mx: x, my: y - 24 }, 48, 24);
-                        borderWest = Location.boundPoint(Direction.West, <Location>{ mx: x, my: y - 24 }, 48, 24);
+                        borderSouth = Location.boundPoint(Direction.South, <Location>{ x: x, y: y - 24 }, 48, 24);
+                        borderWest = Location.boundPoint(Direction.West, <Location>{ x: x, y: y - 24 }, 48, 24);
 
-                        d1x = x - Math.round(borderSouth.mx);
-                        d1x = y - Math.round(borderSouth.my + 32);
+                        d1x = x - Math.round(borderSouth.x);
+                        d1x = y - Math.round(borderSouth.y + 32);
 
                         d1 = 1 - Math.sqrt(d1x * d1x + d1x * d1x) * maxD;
 
-                        d2x = x - Math.round(borderWest.mx);
-                        d2y = y - Math.round(borderWest.my + 32);
+                        d2x = x - Math.round(borderWest.x);
+                        d2y = y - Math.round(borderWest.y + 32);
 
                         d2 = 1 - Math.sqrt(d2x * d2x + d2y * d2y) * maxD;
 
                         d = (d1 + d2) / 2 + sparkle;
                         break;
                     case LandTransition.SW_down:
-                        borderSouth = Location.boundPoint(Direction.South, <Location>{ mx: x, my: y - 24 }, 48, 24);
-                        borderWest = Location.boundPoint(Direction.West, <Location>{ mx: x, my: y - 24 }, 48, 24);
+                        borderSouth = Location.boundPoint(Direction.South, <Location>{ x: x, y: y - 24 }, 48, 24);
+                        borderWest = Location.boundPoint(Direction.West, <Location>{ x: x, y: y - 24 }, 48, 24);
 
-                        d1x = x - Math.round(borderSouth.mx);
-                        d1x = y - Math.round(borderSouth.my + 32);
+                        d1x = x - Math.round(borderSouth.x);
+                        d1x = y - Math.round(borderSouth.y + 32);
 
                         d1 = 1 - Math.sqrt(d1x * d1x + d1x * d1x) * maxD;
 
-                        d2x = x - Math.round(borderWest.mx);
-                        d2y = y - Math.round(borderWest.my + 32);
+                        d2x = x - Math.round(borderWest.x);
+                        d2y = y - Math.round(borderWest.y + 32);
 
                         d2 = 1 - Math.sqrt(d2x * d2x + d2y * d2y) * maxD;
 
                         d = (d1 + d2) / 2 + sparkle;
                         break;
                     case LandTransition.NW_down:
-                        borderNorth = Location.boundPoint(Direction.North, <Location>{ mx: x, my: y - 24 }, 64, 32);
-                        borderWest = Location.boundPoint(Direction.West, <Location>{ mx: x, my: y - 24 }, 48, 24);
+                        borderNorth = Location.boundPoint(Direction.North, <Location>{ x: x, y: y - 24 }, 64, 32);
+                        borderWest = Location.boundPoint(Direction.West, <Location>{ x: x, y: y - 24 }, 48, 24);
 
-                        d1x = x - Math.round(borderNorth.mx);
-                        d1x = y - Math.round(borderNorth.my + 32);
+                        d1x = x - Math.round(borderNorth.x);
+                        d1x = y - Math.round(borderNorth.y + 32);
 
                         d1 = Math.sqrt(d1x * d1x + d1x * d1x) * maxD;
 
-                        d2x = x - Math.round(borderWest.mx);
-                        d2y = y - Math.round(borderWest.my + 32);
+                        d2x = x - Math.round(borderWest.x);
+                        d2y = y - Math.round(borderWest.y + 32);
 
                         d2 = 1 - Math.sqrt(d2x * d2x + d2y * d2y) * maxD;
 

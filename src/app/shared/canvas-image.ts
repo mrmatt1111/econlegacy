@@ -1,10 +1,45 @@
 import { BitMap } from './bitmap';
+import { ElementRef } from '@angular/core';
+
+export class ContextRect implements ClientRect {
+    width: number;
+    height: number;
+    left: number;
+    right: number;
+    top: number;
+    bottom: number;
+
+    constructor(x: number, y: number, w: number, h: number, scale: number) {
+        this.width = w * scale;
+        this.height = h * scale;
+
+        this.top = y - this.height / 2;
+        this.bottom = y + this.height / 2;
+
+        this.left = x - this.width / 2;
+        this.right = x + this.width / 2;
+    }
+
+    draw(ctx: CanvasRenderingContext2D, strokeStyle?: string) {
+        ctx.beginPath();
+        ctx.moveTo(this.left, this.top);
+        ctx.lineTo(this.right, this.top);
+        ctx.lineTo(this.right, this.bottom);
+        ctx.lineTo(this.left, this.bottom);
+        ctx.closePath();
+        if (strokeStyle) {
+            ctx.strokeStyle = strokeStyle;
+        }
+        ctx.stroke();
+    }
+}
 
 export class CanvasImage {
 
     hasLoaded: boolean = false;
     private needsImage: boolean = false;
     private contextDestroyed = false;   // only can draw once: 1. fetch image, draw, and load 2. create image and load
+    private drawImageOnCreateContext = false;
 
     private _image: HTMLImageElement;   // don't always need an image
     get image(): HTMLImageElement {
@@ -40,8 +75,8 @@ export class CanvasImage {
         return this._context ? this._context.canvas.height : this.image.height;
     }
 
-    private _onload: () => void;
-    set onload(handler: () => void) {
+    private _onload: (image: CanvasImage) => void;
+    set onload(handler: (image: CanvasImage) => void) {
         this._onload = handler;
     }
 
@@ -62,6 +97,14 @@ export class CanvasImage {
         return image;
     }
 
+    static createFrom(ref: ElementRef): CanvasImage {
+        let image = new CanvasImage();
+
+        image._context = (<HTMLCanvasElement>ref.nativeElement).getContext('2d');
+
+        return image;
+    }
+
     static load(img: HTMLImageElement): CanvasImage {
         let image = CanvasImage.create(img.width, img.height);
 
@@ -70,7 +113,7 @@ export class CanvasImage {
         return image;
     }
 
-    static fetch(url: string, onload?: () => void, onerror?: () => void): CanvasImage {
+    static fetch(url: string, onload?: (image: CanvasImage) => void, onerror?: () => void): CanvasImage {
         let image = new CanvasImage();
 
         image.needsImage = true;
@@ -84,7 +127,7 @@ export class CanvasImage {
 
     private createContext(width: number, height: number) {
         if (this.contextDestroyed) {
-            throw { message: 'This canvas image has already been built, please create a new one.' };
+            throw new Error('This canvas image has already been built, please create a new one.');
         }
 
         let canvas = document.createElement('canvas');
@@ -93,11 +136,16 @@ export class CanvasImage {
         canvas.height = height;
 
         this._context = canvas.getContext('2d');
+
+        if (this.drawImageOnCreateContext) {
+            this._context.drawImage(this.image, 0, 0, this.width, this.height);
+            this.drawImageOnCreateContext = false;
+        }
     }
 
     getImageData(x?: number, y?: number, width?: number, height?: number) {
-        if (!this._context) {
-            throw { message: 'Map Image has yet to complete loading.' };
+        if (!this.ctx) {
+            throw new Error('Map Image has yet to complete loading.');
         }
 
         if (width === undefined) {
@@ -133,8 +181,9 @@ export class CanvasImage {
 
     doOnLoad() {
         this.hasLoaded = true;
+        this.drawImageOnCreateContext = true;
         if (this._onload) {
-            this._onload.call(this.image);
+            this._onload.call(this.image, this);
         }
     }
 

@@ -20,3 +20,17 @@ export enum LandTransition {
     SW_down = 10,
     NW_down = 11
 }
+
+export enum Orientation {
+    _0,
+    _90,
+    _180,
+    _270
+}
+
+export enum Direction {
+    North = 0,
+    East = 1,
+    South = 2,
+    West = 3,
+}

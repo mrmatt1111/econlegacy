@@ -6,14 +6,14 @@
     <input type="button" (click)="drawMap()" value="Draw Map"  *ngIf="false"/>
     <input type="button" (click)="map.rotateLeft()" value="Left" />
     <input type="button" (click)="map.rotateRight()" value="Right" />
-    <input type="button" (click)="map.zoom(true)" value="Zoom In" />
+    <input type="button" (click)="map.zoom(true)" style="margin-left:8px" value="Zoom In" />
     <input type="button" (click)="map.zoom(false)" value="Zoom Out" />
 
     <input type="button" (click)="pause=!pause" value="{{pause ? 'Unpause': 'Pause'}}" style="margin-left: 200px;" />
     <input type="button" (click)="slowTile=!slowTile" value="{{!slowTile ? 'Slow Tiles': 'Fast Tiles'}}" />
 </div>
-<div *ngIf="tick">
-    tick: {{tick}}
+<div *ngIf="tick" style="margin-top: 5px;">
+    tick: {{tick}}, ground renders: {{MapRenderer.renderGroundCount}}, tiles rendered: {{MapRenderer.tilesRendered}}
 </div>
 <div *ngIf="mouse && mouse.position">
     {{mouse_mx}}x{{mouse_my}} <span *ngIf="mouse.dragDelta">(click:{{mouse.dragDelta.mx}}x{{mouse.dragDelta.my}})</span>
@@ -23,9 +23,6 @@
 </div>
 <div *ngIf="diffx!==undefined">
     ({{diffx}},{{diffy}})
-</div>
-<div *ngIf="map.location && map.location.exitDirection !== undefined">
-    Tried to escape {{Direction[location.exitDirection]}}!
 </div>
 <div *ngIf="items">
     {{items}}
