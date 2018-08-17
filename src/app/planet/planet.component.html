@@ -11,6 +11,7 @@
 
     <input type="button" (click)="pause=!pause" value="{{pause ? 'Unpause': 'Pause'}}" style="margin-left: 200px;" />
     <input type="button" (click)="slowTile=!slowTile" value="{{!slowTile ? 'Slow Tiles': 'Fast Tiles'}}" />
+    <input type="button" (click)="LandTile.showZones=!LandTile.showZones;lastRendered=undefined;" value="{{!LandTile.showZones ? 'Show Zones': 'Hide Zones'}}" />
 </div>
 <div *ngIf="tick" style="margin-top: 5px;">
     tick: {{tick}}, ground renders: {{MapRenderer.renderGroundCount}}, tiles rendered: {{MapRenderer.tilesRendered}}

@@ -3,6 +3,7 @@ import { MapManager } from './map.manager';
 import { Direction } from './planet.enums';
 import { ContextRect } from '../shared/canvas-image';
 import { map } from 'rxjs/operators';
+import { Pixel } from '../shared';
 
 export class MapRenderer {
     static renderGroundCount: number = 0;
@@ -61,7 +62,10 @@ export class MapRenderer {
 
             MapRenderer.tilesRendered++;
 
-            let image = tile.image;
+            let image = tile.image ? tile.image : tile.baseImage;
+
+            // if (image.height === 0)
+            //     continue;
 
             ctx.drawImage(image ? image : tile.baseImage, tile.location.x, tile.location.y);
         }

@@ -5,6 +5,7 @@ import { LandType, LandTransition, Orientation } from './planet.enums';
 export class LandTile {
 
     static loader: TileLoader = new TileLoader();
+    static showZones = false;
 
     get baseImageLoaded(): boolean {
         return this.baseImage !== undefined;
@@ -20,6 +21,8 @@ export class LandTile {
     }
 
     landTrasition: LandTransition;
+
+    zone = Math.floor(Math.random()*9+1);
 
     baseImageIndex = Math.floor(3 * Math.random());
     constructor(public location: Location) {
@@ -49,7 +52,7 @@ export class LandTile {
                 }
             }
 
-            let blend = LandTile.loader.blended[this.landType][landTrasition];
+            let blend = LandTile.loader.blended[this.landType][landTrasition][LandTile.showZones && this.landType !== LandType.Water ? this.zone : 0];
             if (blend) {
                 return blend;
             }
@@ -61,6 +64,15 @@ export class LandTile {
         if (!LandTile.loader.base[this.landType]) {
             return undefined;
         }
-        return LandTile.loader.base[this.landType][this.baseImageIndex];
+        let images = LandTile.loader.base[this.landType][this.baseImageIndex]
+
+        if (images.length > 0) {
+            // debugger;
+        }
+
+        if (this.landType !== LandType.Water) {
+            return images[LandTile.showZones ? this.zone : 0];
+        }
+        return images[0];
     }
 }

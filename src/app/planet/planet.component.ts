@@ -31,6 +31,7 @@ export class PlanetComponent implements OnInit, AfterViewInit {
 
     Direction = Direction;
     MapRenderer = MapRenderer;
+    LandTile = LandTile;
 
     diffx;
     diffy;

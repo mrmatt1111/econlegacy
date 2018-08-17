@@ -11,6 +11,19 @@ export class TileLoader {
     blended = [];
     nature = [];
 
+    static zoneOverlays: Pixel[] = [
+        new Pixel(0, 0, 0, 0),      //null
+        new Pixel(0, 60, 30, 60),   //LRES
+        new Pixel(0, 255, 0, 60),   //MRES
+        new Pixel(0, 255, 127, 60), //URES
+        new Pixel(0, 125, 255, 60), //COM
+        new Pixel(0, 0, 255, 60),   //OFFICE
+        new Pixel(255, 255, 0, 60), //IND
+        new Pixel(255, 255, 255, 60), // no zone
+        new Pixel(255, 0, 0, 100),  //RED
+        new Pixel(0, 255, 0, 127)   //GREEN
+    ];
+
     init(landData) {
         this.baseLoadCount = 4 * 3;
 
@@ -29,16 +42,65 @@ export class TileLoader {
         });
     }
 
-    initBaseImage(landType: LandType, landData, index) {
+    initZoneImage(versionArray: HTMLImageElement[], zonePixel: Pixel) {
+        // magic
+        if (zonePixel.alpha === 0) {
+            return;
+        }
+
+        let _image: CanvasImage = CanvasImage.load(versionArray[0]);
+        versionArray.push(_image.image);
+
+        let overlay: CanvasImage = CanvasImage.create(64, 32);
+
+        // draw a green box... and then replace any thing that is green :-D
+        overlay.ctx.fillStyle = '#00FF00';
+        overlay.ctx.beginPath();
+        overlay.ctx.moveTo(0, 16);
+        overlay.ctx.lineTo(32, 0);
+        overlay.ctx.lineTo(64, 16);
+        overlay.ctx.lineTo(32, 32);
+        overlay.ctx.closePath();
+        overlay.ctx.fill();
+
+        let bitmap: BitMap = overlay.getBitMap();
+
+        let alpha = zonePixel.alpha / 255;
+
+        for (let py: number = 0; py < 32; py++) {
+            for (let px: number = 0; px < 64; px++) {
+                let pixel = bitmap.pixel[px][py];
+                if (pixel.green === 255) {
+
+                    // let alpha0 = bitmap.pixel[px][py].alpha;
+
+                    if (pixel.alpha === 255) {
+                        pixel.copy(zonePixel, false);
+                    } else {
+                        let alpha0 = bitmap.pixel[px][py].alpha / 255;
+                        pixel.copy(zonePixel, true);
+                        pixel.alpha = Math.floor((alpha0 * alpha) * 255);
+                    }
+                }
+            }
+        }
+
+        overlay.putBitMap(bitmap);
+
+        _image.ctx.drawImage(overlay.canvas, 0, 0);
+        _image.send();
+    }
+
+    initBaseImage(landType: LandType, landData, version) {
         if (!landData) {
             throw { message: '"landData" is missing, cannot load base image.' };
         }
 
         let image: CanvasImage = CanvasImage.create(64, 32);
-        this.base[landType][index] = image.image;
+        this.base[landType][version] = [image.image];
 
-        // draw a red box... and then replace any thing that is red :-D
-        image.ctx.fillStyle = 'Red';
+        // draw a green box... and then replace any thing that is green :-D
+        image.ctx.fillStyle = '#00FF00';
         image.ctx.beginPath();
         image.ctx.moveTo(0, 16);
         image.ctx.lineTo(32, 0);
@@ -70,9 +132,10 @@ export class TileLoader {
 
         for (let py: number = 0; py < 32; py++) {
             for (let px: number = 0; px < 64; px++) {
-                if (bitmap.pixel[px][py].red === 255) {
+                let pixel = bitmap.pixel[px][py];
+                if (pixel.green === 255) {
                     let toPixel = bucket[bucketIndex++ % bucket.length]; // refill the bucket if needed
-                    bitmap.pixel[px][py].copy(toPixel, true);
+                    pixel.copy(toPixel, true);
                 }
             }
         }
@@ -86,6 +149,13 @@ export class TileLoader {
             }
 
             this.initNatureImages(landData);
+
+            // this.base.forEach( (landType) => {
+            //     landType.forEach( (version) => {
+            //         TileLoader.zoneOverlays.forEach( (zone) => this.initZoneImage(version, zone) );
+            //     });
+            // });
+            TileLoader.zoneOverlays.forEach( (zone) => this.initZoneImage(this.base[landType][version], zone) );
         };
         image.send();
     }
@@ -118,18 +188,15 @@ export class TileLoader {
     }
 
     blend(lowerType: LandType, transition: LandTransition) {
-        let lower: HTMLImageElement = this.base[lowerType][0];
-        let upper: HTMLImageElement = this.base[lowerType + 1][0];
-
         let w = 64;
         let h = 32;
 
         // fill with lower land image
-        let image = CanvasImage.load(this.base[lowerType][0]);
-        this.blended[lowerType][transition] = image.image;
+        let image = CanvasImage.load(this.base[lowerType][0][0]);
+        this.blended[lowerType][transition] =  [image.image];
 
         // fill with upper land image
-        let upperImage = CanvasImage.load(this.base[lowerType + 1][0]);
+        let upperImage = CanvasImage.load(this.base[lowerType + 1][0][0]);
         let upperBM = upperImage.getBitMap();
 
         let maxD = 1 / Math.sqrt(32 * 32 + 16 * 16);
@@ -358,6 +425,11 @@ export class TileLoader {
         upperImage.putBitMap(upperBM);
 
         image.ctx.drawImage(upperImage.canvas, 0, 0);
+
+        image.onload = (img) => {
+            TileLoader.zoneOverlays.forEach( (zone) => this.initZoneImage(this.blended[lowerType][transition], zone) );
+        };
+
         image.send();
     }
 }
