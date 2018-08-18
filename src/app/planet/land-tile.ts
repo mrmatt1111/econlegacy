@@ -1,6 +1,13 @@
-import { Location } from './location';
+import { Location, Point } from './location';
 import { TileLoader } from './loaders/tile.loader';
 import { LandType, LandTransition, Orientation } from './planet.enums';
+
+export interface NatureDetail {
+    groundImage: HTMLImageElement[];
+
+    airImage: HTMLImageElement;
+    airOffset: Point;
+}
 
 export class LandTile {
 
@@ -21,12 +28,32 @@ export class LandTile {
     }
 
     landTrasition: LandTransition;
+    natureIndex = undefined;
 
-    zone = Math.floor(Math.random()*9+1);
+    zone = Math.floor(Math.random() * 9 + 1);
 
     baseImageIndex = Math.floor(3 * Math.random());
     constructor(public location: Location) {
     }
+
+    getExtraHeight() {
+        let nature = this.getNature();
+        if (!nature || !nature.airImage) {
+            return 0;
+        }
+
+        let extra = nature.airImage.height - nature.airOffset.y - 32;
+
+        return extra < 0 ? 0 : extra;
+    }
+
+    getNature(): NatureDetail {
+        if (this.natureIndex === undefined) {
+            return undefined;
+        }
+        return LandTile.loader.nature[this.landType][this.natureIndex];
+    }
+
 
     getContextRect(): ClientRect {
         return <ClientRect>{
@@ -52,9 +79,15 @@ export class LandTile {
                 }
             }
 
-            let blend = LandTile.loader.blended[this.landType][landTrasition][LandTile.showZones && this.landType !== LandType.Water ? this.zone : 0];
+            let blend = LandTile.loader.blended[this.landType][landTrasition]
+            [LandTile.showZones && this.landType !== LandType.Water ? this.zone : 0];
             if (blend) {
                 return blend;
+            }
+        } else if (this.natureIndex !== undefined) {
+            let nature = LandTile.loader.nature[this.landType][this.natureIndex];
+            if (nature) {
+                return nature.groundImage[LandTile.showZones ? this.zone : 0];
             }
         }
         return undefined;
@@ -64,7 +97,7 @@ export class LandTile {
         if (!LandTile.loader.base[this.landType]) {
             return undefined;
         }
-        let images = LandTile.loader.base[this.landType][this.baseImageIndex]
+        let images = LandTile.loader.base[this.landType][this.baseImageIndex];
 
         if (images.length > 0) {
             // debugger;

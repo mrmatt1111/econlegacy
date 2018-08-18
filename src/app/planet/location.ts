@@ -111,8 +111,12 @@ export class Location implements Point {
         return 0;
     }
 
-    static distance(x0: number, y0: number, x1: number, y1: number) {
-        return Math.sqrt(Math.pow(x1 - x0, 2) + Math.pow(y1 - y0, 2));
+    static distance(x0: number, y0: number, x1: number, y1: number, maxDistance?: number) {
+        if (maxDistance !== undefined) {
+            return Math.sqrt(Math.pow(x1 - x0, 2) + Math.pow(y1 - y0, 2)) * maxDistance;
+        } else {
+            return Math.sqrt(Math.pow(x1 - x0, 2) + Math.pow(y1 - y0, 2));
+        }
     }
 
     constructor(private _tx: number, private _ty: number, public x: number = 0, public y: number = 0) {

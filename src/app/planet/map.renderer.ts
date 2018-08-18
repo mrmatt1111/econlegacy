@@ -2,15 +2,25 @@ import { Location } from './location';
 import { MapManager } from './map.manager';
 import { Direction } from './planet.enums';
 import { ContextRect } from '../shared/canvas-image';
-import { map } from 'rxjs/operators';
+import { LandTile, NatureDetail } from './land-tile';
 import { Pixel } from '../shared';
+
+export enum RenderThe {
+    Ground = 1,
+    Air = 2
+}
 
 export class MapRenderer {
     static renderGroundCount: number = 0;
     static tilesRendered: number = 0;
 
-    static renderGround(manager: MapManager, ctx: CanvasRenderingContext2D, location: Location, width: number, height: number): void {
-        MapRenderer.renderGroundCount++;
+    static renderAirCount: number = 0;
+    static itemsRendered: number = 0;
+
+    static renderScale: number = 1;
+
+    static render(manager: MapManager, ctx: CanvasRenderingContext2D, render: number, location: Location, width: number, height: number): void {
+        let RT = RenderThe;
 
         let mx = location.x;
         let my = location.y;
@@ -20,17 +30,29 @@ export class MapRenderer {
 
         let scale = manager.scale;
 
+        let renderGround = render & RenderThe.Ground;
+        let renderAir = render & RenderThe.Air;
+
         ctx.save();
 
-        ctx.fillStyle = 'black';
-        ctx.fillRect(0, 0, width, height);
+        if (renderGround) {
+            ctx.fillStyle = 'black';
+            ctx.fillRect(0, 0, width, height);
+
+            MapRenderer.renderGroundCount++;
+            MapRenderer.tilesRendered = 0;
+        } else {
+            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
+            MapRenderer.renderAirCount++;
+            MapRenderer.itemsRendered = 0;
+        }
 
         ctx.translate(center_x - mx * scale, center_y - my * scale);
         ctx.scale(scale, scale);
 
-        let rect: ContextRect = new ContextRect(mx, my, ctx.canvas.width, ctx.canvas.height, (1 / manager.scale));
+        let rect: ContextRect = new ContextRect(mx, my, ctx.canvas.width, ctx.canvas.height, (1 / manager.scale) * MapRenderer.renderScale);
 
-        MapRenderer.tilesRendered = 0;
         let count: number = -1;
         for (let tile of manager.drawableTiles) {
             count++;
@@ -38,38 +60,50 @@ export class MapRenderer {
                 continue;
             }
 
-            // let tileRect = tile.getContextRect();
-            // if (
-            //     tileRect.bottom < rect.top ||
-            //     tileRect.top > rect.bottom ||
-            //     tileRect.left > rect.right ||
-            //     tileRect.right < rect.left
-            // ) {
-            //     continue;
-            // }
+            let x = tile.location.x;
+            let y = tile.location.y;
 
-            if (tile.location.y + 32 < rect.top ||
-                tile.location.y > rect.bottom ||
-                tile.location.x > rect.right ||
-                tile.location.x + 64 < rect.left
+            let extra = tile.getExtraHeight();
+
+            if (y + 32 < rect.top ||
+                y - extra > rect.bottom ||
+                x > rect.right ||
+                x + 64 < rect.left
             ) {
                 continue;
             }
 
-            // if (this.slowTile && count > this.tick % (width * height)) {
-            //     continue;
-            // }
+            if (renderGround) {
+                MapRenderer.tilesRendered++;
 
-            MapRenderer.tilesRendered++;
+                let image = tile.image ? tile.image : tile.baseImage;
 
-            let image = tile.image ? tile.image : tile.baseImage;
+                ctx.drawImage(image ? image : tile.baseImage, x, y);
+            }
+            /* no else */
+            if (renderAir) {
 
-            // if (image.height === 0)
-            //     continue;
-
-            ctx.drawImage(image ? image : tile.baseImage, tile.location.x, tile.location.y);
+                let detail: NatureDetail = tile.getNature();
+                // has nature?
+                if (detail && detail.airImage) {
+                    ctx.drawImage(detail.airImage, x + detail.airOffset.x, y + detail.airOffset.y);
+                    MapRenderer.itemsRendered++;
+                }
+            }
         }
 
+        if (this.renderScale !== 1) {
+            rect.draw(ctx, 'White');
+        }
+
+        if (renderGround) {
+            MapRenderer.renderDebugLines(manager, ctx, scale, mx, my, location, rect, width, height);
+        }
+
+        ctx.restore();
+    }
+
+    static renderDebugLines(manager, ctx, scale, mx, my, location, rect, width, height) {
         let drawPixel = (x: number, y: number, fillStyle?: string, size: number = 1) => {
             if (fillStyle) {
                 ctx.fillStyle = fillStyle;
@@ -115,17 +149,11 @@ export class MapRenderer {
         let west = Location.boundPoint(Direction.West, location);
         drawPixel(west.x - 1, west.y - 1, 'Lime', 3);
 
-        rect.draw(ctx, 'White');
-
         ctx.restore();
         ctx.save();
-
-
 
         // prove things line up correctly
         ctx.fillStyle = 'Red';
         ctx.fillRect(width / 2 - 1, height / 2 - 1, 3, 3);
-
-        ctx.restore();
     }
 }

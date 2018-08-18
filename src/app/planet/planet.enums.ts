@@ -5,6 +5,13 @@ export enum LandType {
     High = 3
 }
 
+export enum Season {
+    Winter = 0,
+    Spring = 1,
+    Summer = 2,
+    Fall = 3
+}
+
 export enum LandTransition {
     None = -1,  // open ground/water
     North = 0,      // 1 touching

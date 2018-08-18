@@ -2,30 +2,45 @@ import { Location, Point } from '../location';
 import { Pixel } from '../../shared/pixel';
 import { BitMap } from '../../shared/bitmap';
 import { Utils } from '../../shared/utils';
-import { LandType, LandTransition, Direction } from '../planet.enums';
+import { LandType, LandTransition, Direction, Season } from '../planet.enums';
 import { CanvasImage } from '../../shared/canvas-image';
+import { NatureDetail } from '../land-tile';
 
 export class TileLoader {
+    static overlayPixel: Pixel[] = [
+        new Pixel(0, 0, 0, 0),      // null
+        new Pixel(0, 60, 30, 60),   // LRES
+        new Pixel(0, 255, 0, 60),   // MRES
+        new Pixel(0, 255, 127, 60), // URES
+        new Pixel(0, 125, 255, 60), // COM
+        new Pixel(0, 0, 255, 60),   // OFFICE
+        new Pixel(255, 255, 0, 60), // IND
+        new Pixel(255, 255, 255, 60), // no zone
+        new Pixel(255, 0, 0, 100),  // RED
+        new Pixel(0, 255, 0, 127)   // GREEN
+    ];
+
     base = [];
     baseLoadCount: number = 4;
     blended = [];
     nature = [];
 
-    static zoneOverlays: Pixel[] = [
-        new Pixel(0, 0, 0, 0),      //null
-        new Pixel(0, 60, 30, 60),   //LRES
-        new Pixel(0, 255, 0, 60),   //MRES
-        new Pixel(0, 255, 127, 60), //URES
-        new Pixel(0, 125, 255, 60), //COM
-        new Pixel(0, 0, 255, 60),   //OFFICE
-        new Pixel(255, 255, 0, 60), //IND
-        new Pixel(255, 255, 255, 60), // no zone
-        new Pixel(255, 0, 0, 100),  //RED
-        new Pixel(0, 255, 0, 127)   //GREEN
-    ];
 
-    init(landData) {
+    // path = 'assets/land/earth/s2/';
+    season: Season;
+
+    get imagePath(): string {
+        return 'assets/land/earth/s' + this.season + '/';
+    }
+
+    overlayCanvas: CanvasImage[] = [];
+
+    init(landData, season) {
         this.baseLoadCount = 4 * 3;
+
+        this.season = season;
+
+        TileLoader.overlayPixel.forEach((zone) => this.createOverlayCanvas(zone));
 
         [LandType.Water, LandType.Low, LandType.Medium, LandType.High]
             .forEach((landType) => {
@@ -42,16 +57,10 @@ export class TileLoader {
         });
     }
 
-    initZoneImage(versionArray: HTMLImageElement[], zonePixel: Pixel) {
-        // magic
-        if (zonePixel.alpha === 0) {
-            return;
-        }
-
-        let _image: CanvasImage = CanvasImage.load(versionArray[0]);
-        versionArray.push(_image.image);
-
+    createOverlayCanvas(zonePixel: Pixel) {
         let overlay: CanvasImage = CanvasImage.create(64, 32);
+
+        this.overlayCanvas.push(overlay);
 
         // draw a green box... and then replace any thing that is green :-D
         overlay.ctx.fillStyle = '#00FF00';
@@ -71,9 +80,6 @@ export class TileLoader {
             for (let px: number = 0; px < 64; px++) {
                 let pixel = bitmap.pixel[px][py];
                 if (pixel.green === 255) {
-
-                    // let alpha0 = bitmap.pixel[px][py].alpha;
-
                     if (pixel.alpha === 255) {
                         pixel.copy(zonePixel, false);
                     } else {
@@ -86,8 +92,17 @@ export class TileLoader {
         }
 
         overlay.putBitMap(bitmap);
+    }
 
-        _image.ctx.drawImage(overlay.canvas, 0, 0);
+    initZoneImage(versionArray: HTMLImageElement[], overlayIndex: number) {
+        if (overlayIndex === 0) {
+            return;
+        }
+
+        let _image: CanvasImage = CanvasImage.load(versionArray[0]);
+        versionArray.push(_image.image);
+
+        _image.ctx.drawImage(this.overlayCanvas[overlayIndex].canvas, 0, 0);
         _image.send();
     }
 
@@ -142,22 +157,19 @@ export class TileLoader {
 
         image.putBitMap(bitmap);
 
-        image.onload = () => {
+        image.send((img) => {
             this.baseLoadCount--;
             if (this.baseLoadCount === 0) {
                 this.blendImages();
             }
 
-            this.initNatureImages(landData);
+            if (version === 0) {
+                this.initNatureImages(landType, landData);
+            }
 
-            // this.base.forEach( (landType) => {
-            //     landType.forEach( (version) => {
-            //         TileLoader.zoneOverlays.forEach( (zone) => this.initZoneImage(version, zone) );
-            //     });
-            // });
-            TileLoader.zoneOverlays.forEach( (zone) => this.initZoneImage(this.base[landType][version], zone) );
-        };
-        image.send();
+            let overlayCount = 0;
+            TileLoader.overlayPixel.forEach((zone) => this.initZoneImage(this.base[landType][version], overlayCount++));
+        });
     }
 
     blendImages() {
@@ -181,10 +193,47 @@ export class TileLoader {
         );
     }
 
-    initNatureImages(landData) {
+    initNatureImages(landType: LandType, landData: any) {
         if (!landData.nature) {
             return;
         }
+
+        this.nature[landType] = [];
+
+        landData.nature.forEach((nature) => {
+
+            let detail: NatureDetail = <NatureDetail>{
+                groundImage: [],
+                airImage: undefined,
+                airOffset: nature.air ? nature.air.offset : undefined
+            };
+
+            this.nature[landType].push(detail);
+
+            if (nature.ground && nature.ground.file) {
+                CanvasImage.fetch('assets/land/earth/s2/' + nature.ground.file,
+                    (groundImage) => {
+                        let image: CanvasImage = CanvasImage.load(this.base[landType][0][0]);
+                        detail.groundImage.push(image.image);
+
+                        image.ctx.drawImage(groundImage.canvas, nature.ground.offset.x, nature.ground.offset.y);
+
+                        image.send((img) => {
+                            let overlayCount = 0;
+                            TileLoader.overlayPixel.forEach((overlay) => this.initZoneImage(detail.groundImage, overlayCount++));
+                        });
+                    }
+                );
+            }
+
+            if (nature.air && nature.air.file) {
+                CanvasImage.fetch('assets/land/earth/s2/' + nature.air.file,
+                    (airImage) => {
+                        detail.airImage = airImage.image;
+                    }
+                );
+            }
+        });
     }
 
     blend(lowerType: LandType, transition: LandTransition) {
@@ -193,7 +242,7 @@ export class TileLoader {
 
         // fill with lower land image
         let image = CanvasImage.load(this.base[lowerType][0][0]);
-        this.blended[lowerType][transition] =  [image.image];
+        this.blended[lowerType][transition] = [image.image];
 
         // fill with upper land image
         let upperImage = CanvasImage.load(this.base[lowerType + 1][0][0]);
@@ -426,10 +475,9 @@ export class TileLoader {
 
         image.ctx.drawImage(upperImage.canvas, 0, 0);
 
-        image.onload = (img) => {
-            TileLoader.zoneOverlays.forEach( (zone) => this.initZoneImage(this.blended[lowerType][transition], zone) );
-        };
-
-        image.send();
+        image.send((img) => {
+            let overlayCount = 0;
+            TileLoader.overlayPixel.forEach((zone) => this.initZoneImage(this.blended[lowerType][transition], overlayCount));
+        });
     }
 }

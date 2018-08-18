@@ -35,6 +35,9 @@ export class ContextRect implements ClientRect {
 }
 
 export class CanvasImage {
+    static imagesLoaded: number = 0;
+    static canvasesCreated: number = 0;
+    static canvasesDestroyed: number = 0;
 
     hasLoaded: boolean = false;
     private needsImage: boolean = false;
@@ -130,6 +133,7 @@ export class CanvasImage {
             throw new Error('This canvas image has already been built, please create a new one.');
         }
 
+        CanvasImage.canvasesCreated++;
         let canvas = document.createElement('canvas');
 
         canvas.width = width;
@@ -171,15 +175,24 @@ export class CanvasImage {
         this.ctx.putImageData(bitmap.export(), x ? x : 0, x ? x : 0);
     }
 
-    send() {
+    send(onload?: (image: CanvasImage) => void) {
+        if (onload) {
+            this.onload = onload;
+        }
         this.hasLoaded = false;
         this.needsImage = true;
         this.image.src = this._context.canvas.toDataURL();
-        this.contextDestroyed = true;
-        this._context = undefined; // kill the context cause we don't need it any more
+
+        if (this._context) {
+            this._context = undefined; // kill the context cause we don't need it any more
+            this.contextDestroyed = true;
+            CanvasImage.canvasesDestroyed++;
+        }
     }
 
     doOnLoad() {
+        CanvasImage.imagesLoaded++;
+
         this.hasLoaded = true;
         this.drawImageOnCreateContext = true;
         if (this._onload) {

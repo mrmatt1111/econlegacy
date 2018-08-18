@@ -6,16 +6,24 @@
     <input type="button" (click)="drawMap()" value="Draw Map"  *ngIf="false"/>
     <input type="button" (click)="map.rotateLeft()" value="Left" />
     <input type="button" (click)="map.rotateRight()" value="Right" />
+    
     <input type="button" (click)="map.zoom(true)" style="margin-left:8px" value="Zoom In" />
     <input type="button" (click)="map.zoom(false)" value="Zoom Out" />
 
+    <input type="button" (click)="LandTile.showZones=!LandTile.showZones;lastRendered=undefined;" style="margin-left:8px" value="{{!LandTile.showZones ? 'Show Zones': 'Hide Zones'}}" />
+
     <input type="button" (click)="pause=!pause" value="{{pause ? 'Unpause': 'Pause'}}" style="margin-left: 200px;" />
     <input type="button" (click)="slowTile=!slowTile" value="{{!slowTile ? 'Slow Tiles': 'Fast Tiles'}}" />
-    <input type="button" (click)="LandTile.showZones=!LandTile.showZones;lastRendered=undefined;" value="{{!LandTile.showZones ? 'Show Zones': 'Hide Zones'}}" />
+    <input type="button" (click)="MapRenderer.renderScale = MapRenderer.renderScale===1 ? .85 : 1;lastRendered=undefined;" value="{{MapRenderer.renderScale===1?'See Culling':'Hide Culling'}}" />
+    
+</div>
+<div style="margin-top: 5px;">
+    Images generated/loaded: {{CanvasImage.imagesLoaded}}, canvases created: {{CanvasImage.canvasesCreated}}, canvases destroyed: {{CanvasImage.canvasesDestroyed}}
 </div>
 <div *ngIf="tick" style="margin-top: 5px;">
-    tick: {{tick}}, ground renders: {{MapRenderer.renderGroundCount}}, tiles rendered: {{MapRenderer.tilesRendered}}
+    Tick: {{tick}}, ground: &#123;renders: {{MapRenderer.renderGroundCount}}, tiles: {{MapRenderer.tilesRendered}}&#125;, air: &#123;renders: {{MapRenderer.renderAirCount}}, items: {{MapRenderer.itemsRendered}}&#125;
 </div>
+
 <div *ngIf="mouse && mouse.position">
     {{mouse_mx}}x{{mouse_my}} <span *ngIf="mouse.dragDelta">(click:{{mouse.dragDelta.mx}}x{{mouse.dragDelta.my}})</span>
 </div>

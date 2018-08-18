@@ -7,12 +7,74 @@
     "low": {
         "baseColors": [
             ["#a5945e;110", "#9f8e58;85", "#9a8a56;77", "#b7a36e;74", "#b09d65;72", "#948450;59", "#ac995f;54", "#90804d;49", "#a89664;47", "#8d7c48;46", "#baa973;32", "#c0ad75;31", "#7f6e38;30", "#9a874d;25", "#82723f;23", "#867645;21", "#72612b;21", "#766633;18", "#c5b480;18", "#cab981;17", "#c4b179;17", "#8a773d;14", "#af9e70;14", "#cebd86;11", "#6c5c2b;10", "#aa996b;10", "#d8c88d;7", "#6f6134;6", "#9d8f60;6", "#62511d;6", "#d2c28e;6", "#6a5826;5", "#ecd9a1;5", "#544713;4", "#504211;4", "#7a693b;4", "#dfce96;4", "#b3a576;3", "#4b3d10;2", "#f8e8ad;2", "#5f4e18;2", "#645722;2", "#392b0;1", "#3f2e2;1", "#47376;1"]
-        ]
+        ],
+        "nature": [{
+            "ground": {
+                "file": "nature.low.0.ground.gif", "offset": { "x": 12, "y": 6 }
+            },
+            "air": {
+                "file": "nature.low.0.air.gif", "offset": { "x": 13, "y": -17 }
+            }
+        },{
+            "ground": {
+                "file": "nature.low.1.ground.gif", "offset": { "x": 17, "y": 8 }
+            },
+            "air": {
+                "file": "nature.low.1.air.gif", "offset": { "x": 15, "y": -14 }
+            }
+        },{
+            "ground": {
+                "file": "nature.low.2.ground.gif", "offset": { "x": 16, "y": 9 }
+            },
+            "air": {
+                "file": "nature.low.2.air.gif", "offset": { "x": 6, "y": -14 }
+            }
+        },{
+            "ground": {
+                "file": "nature.low.3.ground.gif", "offset": { "x": 19, "y": 5 }
+            },
+            "air": {
+                "file": "nature.low.3.air.gif", "offset": { "x": 19, "y": 5 }
+            }
+        },{
+            "ground": {
+                "file": "nature.low.4.ground.gif", "offset": { "x": 16, "y": 6 }
+            },
+            "air": {
+                "file": "nature.low.4.air.gif", "offset": { "x": 16, "y": 6 }
+            }
+        }]
     },
     "medium": {
         "baseColors": [
             ["#928c51;127", "#888248;112", "#9a9357;98", "#8d874f;78", "#827b41;68", "#9e9859;66", "#79733a;63", "#7d783e;61", "#988f4f;42", "#a39c5c;40", "#a7a162;39", "#a09a62;32", "#726c34;27", "#908545;25", "#aba369;22", "#8a8140;22", "#827e49;17", "#a39e66;17", "#706730;15", "#b0a868;14", "#7e7536;13", "#6c652a;11", "#655f2a;9", "#b5ac6e;8", "#aca971;6", "#58511b;5", "#787230;5", "#c1b97a;4", "#605b23;4", "#bbb375;3", "#47411e;1", "#756f42;1", "#4843c;1"]
-        ]
+        ],
+        "nature": [{
+            "ground": {
+                "file": "nature.mid.0.ground.gif", "offset": { "x": 14, "y": 7 }
+            },
+            "air": {
+                "file": "nature.mid.0.air.gif", "offset": { "x": 11, "y": -12 }
+            }
+        },{
+            "ground": {
+                "file": "nature.mid.1.ground.gif", "offset": { "x": 24, "y": 11 }
+            },
+            "air": {
+                "file": "nature.mid.1.air.gif", "offset": { "x": 3, "y": -12 }
+            }
+        },{
+            "ground": {
+                "file": "nature.mid.2.ground.gif", "offset": { "x": 15, "y": 11 }
+            },
+            "air": {
+                "file": "nature.mid.2.air.gif", "offset": { "x": 6, "y": -14 }
+            }
+        },{
+            "ground": {
+                "file": "nature.high.4.ground.gif", "offset": { "x": 14, "y": 5 }
+            }
+        }]
     },
     "high": {
         "baseColors": [
@@ -20,10 +82,70 @@
         ],
         "nature": [{
             "ground": {
-                "file": "nature.high.0.ground.gif", "offset": { "x": 0, "y": 0 }
+                "file": "nature.high.0.ground.gif", "offset": { "x": 17, "y": 6 }
             },
             "air": {
-                "file": "nature.high.0.air.gif", "offset": { "x": 0, "y": 0 }
+                "file": "nature.high.0.air.gif", "offset": { "x": 10, "y": -12 }
+            }
+        },{
+            "ground": {
+                "file": "nature.high.1.ground.gif", "offset": { "x": 24, "y": 11 }
+            },
+            "air": {
+                "file": "nature.high.1.air.gif", "offset": { "x": 3, "y": -12 }
+            }
+        },{
+            "ground": {
+                "file": "nature.high.2.ground.gif", "offset": { "x": 15, "y": 9 }
+            },
+            "air": {
+                "file": "nature.high.2.air.gif", "offset": { "x": 9, "y": -19 }
+            }
+        },{
+            "ground": {
+                "file": "nature.high.3.ground.gif", "offset": { "x": 15, "y": 11 }
+            },
+            "air": {
+                "file": "nature.high.3.air.gif", "offset": { "x": 6, "y": -14 }
+            }
+        },{
+            "ground": {
+                "file": "nature.high.4.ground.gif", "offset": { "x": 14, "y": 5 }
+            }
+        },{
+            "ground": {
+                "file": "nature.high.5.ground.gif", "offset": { "x": 19, "y": 10 }
+            },
+            "air": {
+                "file": "nature.high.5.air.gif", "offset": { "x": 6, "y": -16 }
+            }
+        },{
+            "ground": {
+                "file": "nature.high.6.ground.gif", "offset": { "x": 11, "y": 7 }
+            },
+            "air": {
+                "file": "nature.high.6.air.gif", "offset": { "x": 2, "y": -24 }
+            }
+        },{
+            "ground": {
+                "file": "nature.high.7.ground.gif", "offset": { "x": 18, "y": 10 }
+            },
+            "air": {
+                "file": "nature.high.7.air.gif", "offset": { "x": 7, "y": -16 }
+            }
+        },{
+            "ground": {
+                "file": "nature.high.8.ground.gif", "offset": { "x": 14, "y": 8 }
+            },
+            "air": {
+                "file": "nature.high.8.air.gif", "offset": { "x": 11, "y": -12 }
+            }
+        },{
+            "ground": {
+                "file": "nature.high.9.ground.gif", "offset": { "x": 16, "y": 10 }
+            },
+            "air": {
+                "file": "nature.high.9.air.gif", "offset": { "x": 6, "y": -14 }
             }
         }]
     }
