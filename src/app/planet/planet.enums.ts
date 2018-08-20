@@ -28,6 +28,46 @@ export enum LandTransition {
     NW_down = 11
 }
 
+export enum Neighbor {
+    NW = 1 << 0,
+    N = 1 << 1,
+    NE = 1 << 2,
+    W = 1 << 3,
+    E = 1 << 4,
+    SW = 1 << 5,
+    S = 1 << 6,
+    SE = 1 << 7
+}
+
+export enum RoadType {
+    None,
+    // road ends
+    EndN,
+    EndE,
+    EndS,
+    EndW,
+    // full road
+    NS,
+    EW,
+    // edge roaad
+    N,
+    S,
+    E,
+    W,
+    // Corners
+    CornerNE,
+    CornerSE,
+    CornerSW,
+    CornerNW,
+    // three way intersection (T)
+    TN,
+    TE,
+    TS,
+    TW,
+    // cross
+    Cross
+}
+
 export enum Orientation {
     _0,
     _90,

@@ -2,12 +2,16 @@ import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angula
 import { HttpClient } from '@angular/common/http';
 import { ImageService } from '../services/image.service';
 import { LandTile } from './land-tile';
-import { LandType, Direction, Season } from './planet.enums';
-import { MapManager } from './map.manager';
+import { Road } from './road';
+import { LandType, Direction, Season, Neighbor, RoadType } from './planet.enums';
+import { MapManager, Neighbors } from './map.manager';
 import { Mouse } from './mouse';
 import { Location, Point } from './location';
-import { Pixel, BitMap, CanvasImage } from '../shared';
+import { Pixel, BitMap, CanvasImage, Random } from '../shared';
 import { MapRenderer, RenderThe } from './map.renderer';
+import { map } from 'rxjs/operators';
+import * as stripJsonComments from 'strip-json-comments';
+import { RoadManager } from './road.manager';
 
 @Component({
     selector: 'app-planet',
@@ -19,13 +23,11 @@ export class PlanetComponent implements OnInit, AfterViewInit {
     @ViewChild('planetCanvas') planetCanvasRef: ElementRef;
     public context: CanvasRenderingContext2D;
 
-    // bufferCanvas: HTMLCanvasElement;
-    // buffer: CanvasRenderingContext2D;
-
     pause: boolean = false;
     slowTile: boolean = false;
 
     map: MapManager = new MapManager();
+    roads = new RoadManager(this.map);
 
     mouse: Mouse;
 
@@ -57,7 +59,6 @@ export class PlanetComponent implements OnInit, AfterViewInit {
     lastRendered: Point;
 
     constructor(private http: HttpClient, private imageService: ImageService) {
-
     }
 
     ngOnInit(): void {
@@ -124,10 +125,16 @@ export class PlanetComponent implements OnInit, AfterViewInit {
         this.airLayer = CanvasImage.create(w, h);
     }
 
+    // convertToJson = map(value => (value as any).replace("*", "").json());
+
     ngAfterViewInit(): void {
-        this.http.get('assets/lands.spring.json').subscribe((data: any) => {
-            LandTile.loader.init(data, Season.Summer);
-        });
+        this.http.get('assets/planet.jsonc', { responseType: 'text' }).pipe(
+            map((json) => {
+                return JSON.parse(stripJsonComments(json));
+            })).subscribe((data: any) => {
+                LandTile.loader.init(data.seasons.summer, Season.Summer);
+                Road.loader.init(data.roads);
+            });
 
         // let landImage: CanvasImage = CanvasImage.fetch('./assets/images/land/earth/L2/land.192.WaterCenter0.gif',
         let landImage: CanvasImage = CanvasImage.fetch('../assets/4ci_testworld50.gif',
@@ -163,12 +170,98 @@ export class PlanetComponent implements OnInit, AfterViewInit {
         this.loop();
     }
 
+    roadBox(tx, ty, ...neighbors: Neighbor[]) {
+        this.map.forEach((t) => {
+            t.zone = 3;
+        }, tx - 2, ty - 2, 5);
+
+        this.map.forEach((t) => {
+            t.zone = 7;
+        }, tx - 1, ty - 1, 3);
+
+        neighbors.forEach((neighbor: Neighbor) => {
+            let point = Neighbors.getPoint(tx, ty, neighbor);
+
+            this.map.getTile(point.x, point.y).zone = 5;
+        });
+
+        this.roads.addRoads([this.map.getTile(tx, ty)]);
+    }
+
     mapInitialized() {
         this.map.gotoTile(92, 65);
-        // this.map.gotoTile(24, 24);
+        this.map.gotoTile(4, 24);
+
+        LandTile.showZones = true;
+        // LandTile.showNature = false;
         // this.map.gotoTile(30, 7);
         // this.map.gotoTile(13, 1);
-        this.map.scale = .5;
+        // this.map.scale = .5;
+
+        let tile = this.map.getTile(4, 24);
+
+        let index = 0;
+        this.roadBox(2 + (index++) * 4, 12, Neighbor.N);
+        this.roadBox(2 + (index++) * 4, 12, Neighbor.E);
+        this.roadBox(2 + (index++) * 4, 12, Neighbor.S);
+        this.roadBox(2 + (index++) * 4, 12, Neighbor.W);
+
+        index = 0;
+        this.roadBox(2 + (index++) * 4, 16, Neighbor.N, Neighbor.S);
+        this.roadBox(2 + (index++) * 4, 16, Neighbor.E, Neighbor.W);
+
+        this.roadBox(2 + (index++) * 4, 16, Neighbor.N, Neighbor.E);
+        this.roadBox(2 + (index++) * 4, 16, Neighbor.S, Neighbor.E);
+        this.roadBox(2 + (index++) * 4, 16, Neighbor.S, Neighbor.W);
+        this.roadBox(2 + (index++) * 4, 16, Neighbor.N, Neighbor.W);
+
+        this.roadBox(2 + (index++) * 4, 16, Neighbor.N, Neighbor.NE);
+        this.roadBox(2 + (index++) * 4, 16, Neighbor.N, Neighbor.NW);
+
+        this.roadBox(2 + (index++) * 4, 16, Neighbor.NE, Neighbor.E);
+        this.roadBox(2 + (index++) * 4, 16, Neighbor.E, Neighbor.SE);
+        this.roadBox(2 + (index++) * 4, 16, Neighbor.SW, Neighbor.W);
+        this.roadBox(2 + (index++) * 4, 16, Neighbor.W, Neighbor.NW);
+
+
+        this.roads.calcRoadTypes();
+
+
+        let nays: Neighbors = this.map.neighbors(tile, (neighbor): boolean => {
+            return neighbor.zone === 5;
+        });
+
+        let has = nays.areThese(Neighbor.N, Neighbor.E);
+
+        let N = Neighbor;
+
+        // this.map.getTile(6, 26).road = new Road(RoadType.None);
+
+        // this.map.getTile(4, 26).road = new Road(RoadType.TE);
+        // this.map.getTile(5, 28).road = new Road(RoadType.EndW);
+        // this.map.getTile(4, 29).road = new Road(RoadType.EndS);
+        // this.map.getTile(4, 28).road = new Road(RoadType.TS);
+        // this.map.getTile(4, 30).road = new Road(RoadType.TW);
+        // this.map.getTile(4, 32).road = new Road(RoadType.Cross);
+
+
+        // this.map.getTile(8, 28).road = new Road(RoadType.N);
+        // this.map.getTile(8, 29).road = new Road(RoadType.S);
+        // this.map.getTile(9, 29).road = new Road(RoadType.N);
+
+        // this.map.getTile(7, 28).road = new Road(RoadType.EndE);
+        // this.map.getTile(9, 30).road = new Road(RoadType.NS);
+        // this.map.getTile(7, 32).road = new Road(RoadType.EW);
+
+        // this.map.getTile(9, 31).road = new Road(RoadType.E);
+        // this.map.getTile(8, 31).road = new Road(RoadType.W);
+        // this.map.getTile(8, 32).road = new Road(RoadType.E);
+
+        // this.map.getTile(4, 34).road = new Road(RoadType.CornerSE);
+        // this.map.getTile(5, 34).road = new Road(RoadType.CornerSW);
+        // this.map.getTile(4, 35).road = new Road(RoadType.CornerNE);
+        // this.map.getTile(5, 35).road = new Road(RoadType.CornerNW);
+
 
         // let tile = this.map.getTile(13, 1);
         // tile.natureIndex = 4;

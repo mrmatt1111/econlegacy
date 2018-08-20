@@ -25,7 +25,7 @@
             "styles": [
               "src/styles.css"
             ],
-            "scripts": []
+            "scripts": ["node_modules/alea/alea.js", "node_modules/strip-json-comments/index.js"]
           },
           "configurations": {
             "production": {

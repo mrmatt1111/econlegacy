@@ -1,10 +1,8 @@
 import { Location, Point } from '../location';
-import { Pixel } from '../../shared/pixel';
-import { BitMap } from '../../shared/bitmap';
-import { Utils } from '../../shared/utils';
+import { Utils, BitMap, Pixel, CanvasImage, Random } from '../../shared';
 import { LandType, LandTransition, Direction, Season } from '../planet.enums';
-import { CanvasImage } from '../../shared/canvas-image';
 import { NatureDetail } from '../land-tile';
+import { Planet } from '../planet';
 
 export class TileLoader {
     static overlayPixel: Pixel[] = [
@@ -20,11 +18,12 @@ export class TileLoader {
         new Pixel(0, 255, 0, 127)   // GREEN
     ];
 
+    static random = new Random(Planet.seed);
+
     base = [];
     baseLoadCount: number = 4;
     blended = [];
     nature = [];
-
 
     // path = 'assets/land/earth/s2/';
     season: Season;
@@ -35,7 +34,7 @@ export class TileLoader {
 
     overlayCanvas: CanvasImage[] = [];
 
-    init(landData, season) {
+    init(landData, season: Season) {
         this.baseLoadCount = 4 * 3;
 
         this.season = season;
@@ -103,7 +102,7 @@ export class TileLoader {
         versionArray.push(_image.image);
 
         _image.ctx.drawImage(this.overlayCanvas[overlayIndex].canvas, 0, 0);
-        _image.send();
+        _image.press();
     }
 
     initBaseImage(landType: LandType, landData, version) {
@@ -141,7 +140,7 @@ export class TileLoader {
         }
 
         // i know, i know... more than once is pointless
-        Utils.shuffle(bucket, 3);
+        Utils.shuffle(TileLoader.random, bucket, 3);
 
         let bucketIndex = 0;
 
@@ -157,7 +156,7 @@ export class TileLoader {
 
         image.putBitMap(bitmap);
 
-        image.send((img) => {
+        image.press((img) => {
             this.baseLoadCount--;
             if (this.baseLoadCount === 0) {
                 this.blendImages();
@@ -218,7 +217,7 @@ export class TileLoader {
 
                         image.ctx.drawImage(groundImage.canvas, nature.ground.offset.x, nature.ground.offset.y);
 
-                        image.send((img) => {
+                        image.press((img) => {
                             let overlayCount = 0;
                             TileLoader.overlayPixel.forEach((overlay) => this.initZoneImage(detail.groundImage, overlayCount++));
                         });
@@ -255,7 +254,7 @@ export class TileLoader {
                 let border: Point;
                 let dx, dy, d, d1, d2, borderNorth: Point, borderEast: Point, borderSouth: Point, borderWest: Point, d1x, d1y, d2x, d2y;
 
-                let sparkle = Math.random() / 75;
+                let sparkle = TileLoader.random.next() / 75;
 
                 switch (transition) {
                     case LandTransition.North:
@@ -475,7 +474,7 @@ export class TileLoader {
 
         image.ctx.drawImage(upperImage.canvas, 0, 0);
 
-        image.send((img) => {
+        image.press((img) => {
             let overlayCount = 0;
             TileLoader.overlayPixel.forEach((zone) => this.initZoneImage(this.blended[lowerType][transition], overlayCount));
         });

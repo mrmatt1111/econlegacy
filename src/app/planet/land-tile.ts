@@ -1,6 +1,8 @@
 import { Location, Point } from './location';
 import { TileLoader } from './loaders/tile.loader';
 import { LandType, LandTransition, Orientation } from './planet.enums';
+import { Random } from '../shared';
+import { Road } from './road';
 
 export interface NatureDetail {
     groundImage: HTMLImageElement[];
@@ -13,6 +15,9 @@ export class LandTile {
 
     static loader: TileLoader = new TileLoader();
     static showZones = false;
+    static showNature = true;
+
+    static random: Random = new Random();
 
     get baseImageLoaded(): boolean {
         return this.baseImage !== undefined;
@@ -30,15 +35,17 @@ export class LandTile {
     landTrasition: LandTransition;
     natureIndex = undefined;
 
-    zone = Math.floor(Math.random() * 9 + 1);
+    zone = 0; // LandTile.random.nextInt(8) + 1;
 
-    baseImageIndex = Math.floor(3 * Math.random());
+    road: Road = undefined;
+
+    baseImageIndex = LandTile.random.nextInt(3); // probably need to reset random as they drift through the seasons
     constructor(public location: Location) {
     }
 
     getExtraHeight() {
         let nature = this.getNature();
-        if (!nature || !nature.airImage) {
+        if (!LandTile.showNature || !nature || !nature.airImage) {
             return 0;
         }
 
@@ -48,7 +55,7 @@ export class LandTile {
     }
 
     getNature(): NatureDetail {
-        if (this.natureIndex === undefined) {
+        if (!LandTile.showNature || this.natureIndex === undefined) {
             return undefined;
         }
         return LandTile.loader.nature[this.landType][this.natureIndex];
@@ -85,7 +92,7 @@ export class LandTile {
                 return blend;
             }
         } else if (this.natureIndex !== undefined) {
-            let nature = LandTile.loader.nature[this.landType][this.natureIndex];
+            let nature = this.getNature();
             if (nature) {
                 return nature.groundImage[LandTile.showZones ? this.zone : 0];
             }

@@ -108,8 +108,13 @@ export class CanvasImage {
         return image;
     }
 
-    static load(img: HTMLImageElement): CanvasImage {
+    static load(img: HTMLImageElement, flipHoriz: boolean = false, flipVert: boolean = false): CanvasImage {
         let image = CanvasImage.create(img.width, img.height);
+
+        if (flipHoriz || flipVert) {
+            image.ctx.translate(flipHoriz ? 64 : 0, flipVert ? 32 : 0);
+            image.ctx.scale(flipHoriz ? -1 : 1, flipVert ? -1 : 1);
+        }
 
         image.ctx.drawImage(img, 0, 0, img.width, img.height);
 
@@ -175,7 +180,7 @@ export class CanvasImage {
         this.ctx.putImageData(bitmap.export(), x ? x : 0, x ? x : 0);
     }
 
-    send(onload?: (image: CanvasImage) => void) {
+    press(onload?: (image: CanvasImage) => void) {
         if (onload) {
             this.onload = onload;
         }

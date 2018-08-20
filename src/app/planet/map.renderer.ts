@@ -1,6 +1,6 @@
 import { Location } from './location';
 import { MapManager } from './map.manager';
-import { Direction } from './planet.enums';
+import { Direction, RoadType } from './planet.enums';
 import { ContextRect } from '../shared/canvas-image';
 import { LandTile, NatureDetail } from './land-tile';
 import { Pixel } from '../shared';
@@ -78,10 +78,31 @@ export class MapRenderer {
 
                 let image = tile.image ? tile.image : tile.baseImage;
 
+                // + temp
+                if (tile.zone > 0) {
+                    image = tile.baseImage;
+                }
+                // -
+
                 ctx.drawImage(image ? image : tile.baseImage, x, y);
             }
             /* no else */
             if (renderAir) {
+                if (tile.road) {
+                    let road = tile.road;
+
+                    if (road.image) {
+                        ctx.drawImage(road.image, x, y);
+                    }
+
+                    continue;
+                }
+
+                // + temp
+                if (tile.zone > 0) {
+                    continue;
+                }
+                // -
 
                 let detail: NatureDetail = tile.getNature();
                 // has nature?

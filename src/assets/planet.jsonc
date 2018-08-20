@@ -1,0 +1,170 @@
+{
+    "roads": {
+        "end": "road.end.gif", // end caps
+        "full":"road.full.gif",
+        "edgeN":"road.edge.n.gif",
+        "edgeE":"road.edge.e.gif",
+        "edgeS":"road.edge.s.gif",
+        "edgeW":"road.edge.w.gif",
+        "cornerNE":"road.corner.ne.gif",
+        "cornerSE":"road.corner.se.gif",
+        "cornerSW":"road.corner.sw.gif",
+        "t":"road.t.gif",
+        "cross":"road.cross.gif"
+    },
+    "seasons": {
+        "summer": {
+            "water": {
+                "baseColors": [
+                    ["#27505f;324", "#2c5768;188", "#265465;183", "#335a69;103", "#325564;73", "#3a5f6f;55", "#30505d;30", "#3f6272;30", "#2f5d6e;23", "#436874;14", "#3c5966;12", "#496671;9", "#4c6f74;6", "#425d6b;5", "#597474;1"]
+                ]
+            },
+            "low": {
+                "baseColors": [
+                    ["#a5945e;110", "#9f8e58;85", "#9a8a56;77", "#b7a36e;74", "#b09d65;72", "#948450;59", "#ac995f;54", "#90804d;49", "#a89664;47", "#8d7c48;46", "#baa973;32", "#c0ad75;31", "#7f6e38;30", "#9a874d;25", "#82723f;23", "#867645;21", "#72612b;21", "#766633;18", "#c5b480;18", "#cab981;17", "#c4b179;17", "#8a773d;14", "#af9e70;14", "#cebd86;11", "#6c5c2b;10", "#aa996b;10", "#d8c88d;7", "#6f6134;6", "#9d8f60;6", "#62511d;6", "#d2c28e;6", "#6a5826;5", "#ecd9a1;5", "#544713;4", "#504211;4", "#7a693b;4", "#dfce96;4", "#b3a576;3", "#4b3d10;2", "#f8e8ad;2", "#5f4e18;2", "#645722;2", "#392b0;1", "#3f2e2;1", "#47376;1"]
+                ],
+                "nature": [{
+                    "ground": {
+                        "file": "nature.low.0.ground.gif", "offset": { "x": 12, "y": 6 }
+                    },
+                    "air": {
+                        "file": "nature.low.0.air.gif", "offset": { "x": 13, "y": -17 }
+                    }
+                },{
+                    "ground": {
+                        "file": "nature.low.1.ground.gif", "offset": { "x": 17, "y": 8 }
+                    },
+                    "air": {
+                        "file": "nature.low.1.air.gif", "offset": { "x": 15, "y": -14 }
+                    }
+                },{
+                    "ground": {
+                        "file": "nature.low.2.ground.gif", "offset": { "x": 16, "y": 9 }
+                    },
+                    "air": {
+                        "file": "nature.low.2.air.gif", "offset": { "x": 6, "y": -14 }
+                    }
+                },{
+                    "ground": {
+                        "file": "nature.low.3.ground.gif", "offset": { "x": 19, "y": 5 }
+                    },
+                    "air": {
+                        "file": "nature.low.3.air.gif", "offset": { "x": 19, "y": 5 }
+                    }
+                },{
+                    "ground": {
+                        "file": "nature.low.4.ground.gif", "offset": { "x": 16, "y": 6 }
+                    },
+                    "air": {
+                        "file": "nature.low.4.air.gif", "offset": { "x": 16, "y": 6 }
+                    }
+                }]
+            },
+            "medium": {
+                "baseColors": [
+                    ["#928c51;127", "#888248;112", "#9a9357;98", "#8d874f;78", "#827b41;68", "#9e9859;66", "#79733a;63", "#7d783e;61", "#988f4f;42", "#a39c5c;40", "#a7a162;39", "#a09a62;32", "#726c34;27", "#908545;25", "#aba369;22", "#8a8140;22", "#827e49;17", "#a39e66;17", "#706730;15", "#b0a868;14", "#7e7536;13", "#6c652a;11", "#655f2a;9", "#b5ac6e;8", "#aca971;6", "#58511b;5", "#787230;5", "#c1b97a;4", "#605b23;4", "#bbb375;3", "#47411e;1", "#756f42;1", "#4843c;1"]
+                ],
+                "nature": [{
+                    "ground": {
+                        "file": "nature.mid.0.ground.gif", "offset": { "x": 14, "y": 7 }
+                    },
+                    "air": {
+                        "file": "nature.mid.0.air.gif", "offset": { "x": 11, "y": -12 }
+                    }
+                },{
+                    "ground": {
+                        "file": "nature.mid.1.ground.gif", "offset": { "x": 24, "y": 11 }
+                    },
+                    "air": {
+                        "file": "nature.mid.1.air.gif", "offset": { "x": 3, "y": -12 }
+                    }
+                },{
+                    "ground": {
+                        "file": "nature.mid.2.ground.gif", "offset": { "x": 15, "y": 11 }
+                    },
+                    "air": {
+                        "file": "nature.mid.2.air.gif", "offset": { "x": 6, "y": -14 }
+                    }
+                },{
+                    "ground": {
+                        "file": "nature.high.4.ground.gif", "offset": { "x": 14, "y": 5 }
+                    }
+                }]
+            },
+            "high": {
+                "baseColors": [
+                    ["#7f8241;113", "#747a38;98", "#797d40;87", "#86894c;81", "#8b8f4a;75", "#858743;62", "#6d6f34;60", "#929654;49", "#666b2a;46", "#979c57;40", "#818549;39", "#727631;39", "#8b8e54;32", "#91944c;31", "#9ca15e;23", "#6d763b;22", "#606424;20", "#626930;15", "#6d6f29;15", "#75763e;15", "#7d7e36;10", "#5e662c;9", "#586026;9", "#a4a763;9", "#5b5f1f;9", "#56571e;8", "#a8aa67;8", "#8b8b42;6", "#4d5213;5", "#a2a55c;5", "#8c945a;4", "#525817;3", "#464af;3", "#afb070;2", "#4f5225;1", "#a9a85b;1", "#babb75;1", "#3334a;1"]
+                ],
+                "nature": [{
+                    "ground": {
+                        "file": "nature.high.0.ground.gif", "offset": { "x": 17, "y": 6 }
+                    },
+                    "air": {
+                        "file": "nature.high.0.air.gif", "offset": { "x": 10, "y": -12 }
+                    }
+                },{
+                    "ground": {
+                        "file": "nature.high.1.ground.gif", "offset": { "x": 24, "y": 11 }
+                    },
+                    "air": {
+                        "file": "nature.high.1.air.gif", "offset": { "x": 3, "y": -12 }
+                    }
+                },{
+                    "ground": {
+                        "file": "nature.high.2.ground.gif", "offset": { "x": 15, "y": 9 }
+                    },
+                    "air": {
+                        "file": "nature.high.2.air.gif", "offset": { "x": 9, "y": -19 }
+                    }
+                },{
+                    "ground": {
+                        "file": "nature.high.3.ground.gif", "offset": { "x": 15, "y": 11 }
+                    },
+                    "air": {
+                        "file": "nature.high.3.air.gif", "offset": { "x": 6, "y": -14 }
+                    }
+                },{
+                    "ground": {
+                        "file": "nature.high.4.ground.gif", "offset": { "x": 14, "y": 5 }
+                    }
+                },{
+                    "ground": {
+                        "file": "nature.high.5.ground.gif", "offset": { "x": 19, "y": 10 }
+                    },
+                    "air": {
+                        "file": "nature.high.5.air.gif", "offset": { "x": 6, "y": -16 }
+                    }
+                },{
+                    "ground": {
+                        "file": "nature.high.6.ground.gif", "offset": { "x": 11, "y": 7 }
+                    },
+                    "air": {
+                        "file": "nature.high.6.air.gif", "offset": { "x": 2, "y": -24 }
+                    }
+                },{
+                    "ground": {
+                        "file": "nature.high.7.ground.gif", "offset": { "x": 18, "y": 10 }
+                    },
+                    "air": {
+                        "file": "nature.high.7.air.gif", "offset": { "x": 7, "y": -16 }
+                    }
+                },{
+                    "ground": {
+                        "file": "nature.high.8.ground.gif", "offset": { "x": 14, "y": 8 }
+                    },
+                    "air": {
+                        "file": "nature.high.8.air.gif", "offset": { "x": 11, "y": -12 }
+                    }
+                },{
+                    "ground": {
+                        "file": "nature.high.9.ground.gif", "offset": { "x": 16, "y": 10 }
+                    },
+                    "air": {
+                        "file": "nature.high.9.air.gif", "offset": { "x": 6, "y": -14 }
+                    }
+                }]
+            }
+        }
+    }
+
+}
