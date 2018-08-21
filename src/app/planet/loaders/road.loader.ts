@@ -29,85 +29,22 @@ export class RoadLoader {
             this.roads[RoadType.None] = img.image;
         });
 
-        CanvasImage.fetch('assets/roads/' + roadData.end, (image) => {
-            this.roads[RoadType.EndN] = image.image;
+        Object.keys(RoadType).forEach((type) => {
+            if (type === 'None' || type === 'Full') {
+                return;
+            }
 
-            CanvasImage.load(image.image, true, false).press((img) => {
-                this.roads[RoadType.EndE] = img.image;
-            });
-
-            CanvasImage.load(image.image, true, true).press((img) => {
-                this.roads[RoadType.EndS] = img.image;
-            });
-
-            CanvasImage.load(image.image, false, true).press((img) => {
-                this.roads[RoadType.EndW] = img.image;
+            CanvasImage.fetch('assets/roads/' + roadData[type], (image) => {
+                this.roads[RoadType[type]] = image.image;
             });
         });
 
-        CanvasImage.fetch('assets/roads/' + roadData.full, (image) => {
+        CanvasImage.fetch('assets/roads/' + roadData.Full, (image) => {
             this.roads[RoadType.NS] = image.image;
 
             CanvasImage.load(image.image, true, false).press((img) => {
                 this.roads[RoadType.EW] = img.image;
             });
         });
-
-        CanvasImage.fetch('assets/roads/' + roadData.edgeN, (image) => {
-            this.roads[RoadType.N] = image.image;
-        });
-
-        CanvasImage.fetch('assets/roads/' + roadData.edgeE, (image) => {
-            this.roads[RoadType.E] = image.image;
-        });
-
-        CanvasImage.fetch('assets/roads/' + roadData.edgeS, (image) => {
-            this.roads[RoadType.S] = image.image;
-        });
-
-        CanvasImage.fetch('assets/roads/' + roadData.edgeW, (image) => {
-            this.roads[RoadType.W] = image.image;
-        });
-
-        CanvasImage.fetch('assets/roads/' + roadData.t, (image) => {
-            this.roads[RoadType.TN] = image.image;
-
-            CanvasImage.load(image.image, true, false).press((img) => {
-                this.roads[RoadType.TE] = img.image;
-            });
-
-            CanvasImage.load(image.image, true, true).press((img) => {
-                this.roads[RoadType.TS] = img.image;
-            });
-
-            CanvasImage.load(image.image, false, true).press((img) => {
-                this.roads[RoadType.TW] = img.image;
-            });
-        });
-
-        CanvasImage.fetch('assets/roads/' + roadData.cross, (image) => {
-            this.roads[RoadType.Cross] = image.image;
-        });
-
-        CanvasImage.fetch('assets/roads/' + roadData.cornerNE, (image) => {
-            this.roads[RoadType.CornerNE] = image.image;
-
-            // CanvasImage.load(image.image, false, true).save((img) => {
-            //     this.roads[RoadType.CornerSW] = img.image;
-            // });
-        });
-
-        CanvasImage.fetch('assets/roads/' + roadData.cornerSE, (image) => {
-            this.roads[RoadType.CornerSE] = image.image;
-
-            CanvasImage.load(image.image, true, false).press((img) => {
-                this.roads[RoadType.CornerNW] = img.image;
-            });
-        });
-
-        CanvasImage.fetch('assets/roads/' + roadData.cornerSW, (image) => {
-            this.roads[RoadType.CornerSW] = image.image; // looks better
-        });
-
     }
 }

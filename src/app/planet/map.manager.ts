@@ -36,6 +36,20 @@ export class Neighbors {
         return undefined;
     }
 
+    remove(...neighbors: Neighbor[]) {
+        neighbors.forEach((neighbor) => {
+            if (!this[Neighbor[neighbor]]) {
+                return;
+            }
+            this.neighbors -= neighbor;
+            this.count--;
+            // // + temp
+            // this[Neighbor[neighbor]].zone = 8;
+            // // -
+            this[Neighbor[neighbor]] = undefined;
+        });
+    }
+
     set(position: Neighbor, tile: LandTile) {
         if (tile) {
             this.neighbors += position; // hmm... should his whole thing be in a factory, i wonder -mg

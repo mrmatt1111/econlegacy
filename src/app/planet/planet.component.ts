@@ -182,10 +182,12 @@ export class PlanetComponent implements OnInit, AfterViewInit {
         neighbors.forEach((neighbor: Neighbor) => {
             let point = Neighbors.getPoint(tx, ty, neighbor);
 
-            this.map.getTile(point.x, point.y).zone = 5;
+            let tile = this.map.getTile(point.x, point.y);
+            tile.zone = 5;
+            this.roads.addRoads([tile], false, false);
         });
 
-        this.roads.addRoads([this.map.getTile(tx, ty)]);
+        this.roads.addRoads([this.map.getTile(tx, ty)], false, false);
     }
 
     mapInitialized() {
@@ -200,29 +202,41 @@ export class PlanetComponent implements OnInit, AfterViewInit {
 
         let tile = this.map.getTile(4, 24);
 
+        let ty = 12;
         let index = 0;
-        this.roadBox(2 + (index++) * 4, 12, Neighbor.N);
-        this.roadBox(2 + (index++) * 4, 12, Neighbor.E);
-        this.roadBox(2 + (index++) * 4, 12, Neighbor.S);
-        this.roadBox(2 + (index++) * 4, 12, Neighbor.W);
+        this.roadBox(2 + (index++) * 4, ty, Neighbor.N, Neighbor.SW, Neighbor.SE);
+        this.roadBox(2 + (index++) * 4, ty, Neighbor.E, Neighbor.NW, Neighbor.SW);
+        this.roadBox(2 + (index++) * 4, ty, Neighbor.S, Neighbor.NW, Neighbor.NE);
+        this.roadBox(2 + (index++) * 4, ty, Neighbor.W, Neighbor.SE, Neighbor.NE);
+        this.roadBox(2 + (index++) * 4, ty, Neighbor.N, Neighbor.S);
+        this.roadBox(2 + (index++) * 4, ty, Neighbor.E, Neighbor.W);
 
-        index = 0;
-        this.roadBox(2 + (index++) * 4, 16, Neighbor.N, Neighbor.S);
-        this.roadBox(2 + (index++) * 4, 16, Neighbor.E, Neighbor.W);
+        index = 0; ty += 4;
+        this.roadBox(2 + (index++) * 4, ty, Neighbor.N, Neighbor.E);
+        this.roadBox(2 + (index++) * 4, ty, Neighbor.S, Neighbor.E);
+        this.roadBox(2 + (index++) * 4, ty, Neighbor.S, Neighbor.W);
+        this.roadBox(2 + (index++) * 4, ty, Neighbor.N, Neighbor.W);
 
-        this.roadBox(2 + (index++) * 4, 16, Neighbor.N, Neighbor.E);
-        this.roadBox(2 + (index++) * 4, 16, Neighbor.S, Neighbor.E);
-        this.roadBox(2 + (index++) * 4, 16, Neighbor.S, Neighbor.W);
-        this.roadBox(2 + (index++) * 4, 16, Neighbor.N, Neighbor.W);
+        this.roadBox(2 + (index++) * 4, ty, Neighbor.N, Neighbor.NE);
+        this.roadBox(2 + (index++) * 4, ty, Neighbor.N, Neighbor.NW);
 
-        this.roadBox(2 + (index++) * 4, 16, Neighbor.N, Neighbor.NE);
-        this.roadBox(2 + (index++) * 4, 16, Neighbor.N, Neighbor.NW);
+        this.roadBox(2 + (index++) * 4, ty, Neighbor.NE, Neighbor.E);
+        this.roadBox(2 + (index++) * 4, ty, Neighbor.E, Neighbor.SE);
+        this.roadBox(2 + (index++) * 4, ty, Neighbor.SW, Neighbor.W);
+        this.roadBox(2 + (index++) * 4, ty, Neighbor.W, Neighbor.NW);
 
-        this.roadBox(2 + (index++) * 4, 16, Neighbor.NE, Neighbor.E);
-        this.roadBox(2 + (index++) * 4, 16, Neighbor.E, Neighbor.SE);
-        this.roadBox(2 + (index++) * 4, 16, Neighbor.SW, Neighbor.W);
-        this.roadBox(2 + (index++) * 4, 16, Neighbor.W, Neighbor.NW);
+        index = 0; ty += 4;
+        this.roadBox(2 + (index++) * 4, ty, Neighbor.W, Neighbor.NW, Neighbor.W, Neighbor.S, Neighbor.SE, Neighbor.NE, Neighbor.SW);
+        this.roadBox(2 + (index++) * 4, ty, Neighbor.NE, Neighbor.N, Neighbor.W, Neighbor.SW, Neighbor.SE, Neighbor.NW);
+        this.roadBox(2 + (index++) * 4, ty, Neighbor.NW, Neighbor.N, Neighbor.E, Neighbor.SE, Neighbor.NE, Neighbor.SW);
+        this.roadBox(2 + (index++) * 4, ty, Neighbor.NE, Neighbor.E, Neighbor.S, Neighbor.SW, Neighbor.SE, Neighbor.NW);
 
+        index = 0; ty += 4;
+        this.roadBox(2 + (index++) * 4, ty, Neighbor.N, Neighbor.E, Neighbor.W, Neighbor.NE, Neighbor.SE, Neighbor.SW, Neighbor.NW);
+        this.roadBox(2 + (index++) * 4, ty, Neighbor.N, Neighbor.E, Neighbor.S, Neighbor.NE, Neighbor.SE, Neighbor.SW, Neighbor.NW);
+        this.roadBox(2 + (index++) * 4, ty, Neighbor.E, Neighbor.S, Neighbor.W, Neighbor.NE, Neighbor.SE, Neighbor.SW, Neighbor.NW);
+        this.roadBox(2 + (index++) * 4, ty, Neighbor.N, Neighbor.S, Neighbor.W, Neighbor.NE, Neighbor.SE, Neighbor.SW, Neighbor.NW);
+        this.roadBox(2 + (index++) * 4, ty, Neighbor.N, Neighbor.E, Neighbor.S, Neighbor.W, Neighbor.NE, Neighbor.SE, Neighbor.SW, Neighbor.NW);
 
         this.roads.calcRoadTypes();
 

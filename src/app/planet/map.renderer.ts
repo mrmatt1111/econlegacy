@@ -76,13 +76,7 @@ export class MapRenderer {
             if (renderGround) {
                 MapRenderer.tilesRendered++;
 
-                let image = tile.image ? tile.image : tile.baseImage;
-
-                // + temp
-                if (tile.zone > 0) {
-                    image = tile.baseImage;
-                }
-                // -
+                let image = tile.image && !tile.road ? tile.image : tile.baseImage;
 
                 ctx.drawImage(image ? image : tile.baseImage, x, y);
             }
@@ -97,12 +91,6 @@ export class MapRenderer {
 
                     continue;
                 }
-
-                // + temp
-                if (tile.zone > 0) {
-                    continue;
-                }
-                // -
 
                 let detail: NatureDetail = tile.getNature();
                 // has nature?

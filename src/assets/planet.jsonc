@@ -1,16 +1,23 @@
 {
     "roads": {
-        "end": "road.end.gif", // end caps
-        "full":"road.full.gif",
-        "edgeN":"road.edge.n.gif",
-        "edgeE":"road.edge.e.gif",
-        "edgeS":"road.edge.s.gif",
-        "edgeW":"road.edge.w.gif",
-        "cornerNE":"road.corner.ne.gif",
-        "cornerSE":"road.corner.se.gif",
-        "cornerSW":"road.corner.sw.gif",
-        "t":"road.t.gif",
-        "cross":"road.cross.gif"
+        "EndN": "road.end.n.gif", // end caps
+        "EndE": "road.end.e.gif",
+        "EndS": "road.end.s.gif",
+        "EndW": "road.end.w.gif",
+        "Full":"road.full.gif",
+        "N":"road.edge.n.gif",
+        "E":"road.edge.e.gif",
+        "S":"road.edge.s.gif",
+        "W":"road.edge.w.gif",
+        "CornerNE":"road.corner.ne.gif",
+        "CornerSE":"road.corner.se.gif",
+        "CornerSW":"road.corner.sw.gif",
+        "CornerNW":"road.corner.nw.gif",
+        "TN":"road.t.n.gif",
+        "TE":"road.t.e.gif",
+        "TS":"road.t.s.gif",
+        "TW":"road.t.w.gif",
+        "Cross":"road.cross.gif"
     },
     "seasons": {
         "summer": {
