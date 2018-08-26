@@ -12,6 +12,8 @@ export enum RenderThe {
 
 export class MapRenderer {
     static renderGroundCount: number = 0;
+    static debugEllipse: boolean = true;
+
     static tilesRendered: number = 0;
 
     static renderAirCount: number = 0;
@@ -109,7 +111,37 @@ export class MapRenderer {
             MapRenderer.renderDebugLines(manager, ctx, scale, mx, my, location, rect, width, height);
         }
 
+        if (MapRenderer.debugEllipse) {
+            MapRenderer.renderDebugEllipse(manager, ctx, scale, location);
+        }
+
         ctx.restore();
+    }
+
+    static renderDebugEllipse(manager, ctx, scale, location) {
+        let drawPixel = (x: number, y: number, fillStyle?: string, size: number = 1) => {
+            if (fillStyle) {
+                ctx.fillStyle = fillStyle;
+            }
+            size = size / scale;
+            ctx.fillRect(x, y, size, size);
+        };
+
+        let w = manager.width * 32;
+
+        for (let i = 0; i < 360; i++) {
+            let s = Math.sin(i * Math.PI / 180);
+            let c = Math.cos(i * Math.PI / 180);
+
+            // let x = location.x;
+            let xx = location.x;
+            let yy = location.y;
+
+            let x = (xx - w) * c - 2 * yy * s + w;
+            let y = (xx - w) * s * .5 + yy * c;
+
+            drawPixel(x, y, (i % 90 === 0 ? 'Red' : 'Yellow'));
+        }
     }
 
     static renderDebugLines(manager, ctx, scale, mx, my, location, rect, width, height) {

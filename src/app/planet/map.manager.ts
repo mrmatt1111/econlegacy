@@ -344,7 +344,10 @@ export class MapManager {
         let x = this.location.x;
         let y = this.location.y;
 
-        // todo: move current position to the rotated position
+        let w = this.width * 32;
+
+        this.location.x = - 2 * y + w;
+        this.location.y = (x - w) * .5;
 
         this.setOrientation(this.orientation);
         this.onRotate.emit(this.orientation);
@@ -358,7 +361,10 @@ export class MapManager {
         let x = this.location.x;
         let y = this.location.y;
 
-        // todo: move current position to the rotated position
+        let w = this.width * 32;
+
+        this.location.x = 2 * y + w;
+        this.location.y = -(x - w) * .5;
 
         this.setOrientation(this.orientation);
         this.onRotate.emit(this.orientation);

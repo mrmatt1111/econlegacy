@@ -191,14 +191,14 @@ export class PlanetComponent implements OnInit, AfterViewInit {
     }
 
     mapInitialized() {
-        this.map.gotoTile(92, 65);
-        this.map.gotoTile(4, 24);
+        // this.map.gotoTile(92, 65);
+        // this.map.gotoTile(4, 24);
+        // this.map.gotoTile(24, 24);
+        this.map.gotoTile(8, 18);
 
         LandTile.showZones = true;
-        // LandTile.showNature = false;
-        // this.map.gotoTile(30, 7);
-        // this.map.gotoTile(13, 1);
-        // this.map.scale = .5;
+
+        // if (true === true) return;
 
         let tile = this.map.getTile(4, 24);
 
