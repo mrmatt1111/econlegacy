@@ -188,6 +188,10 @@ export class CanvasImage {
         this.needsImage = true;
         this.image.src = this._context.canvas.toDataURL();
 
+        this.destroyContext();
+    }
+
+    destroyContext() {
         if (this._context) {
             this._context = undefined; // kill the context cause we don't need it any more
             this.contextDestroyed = true;

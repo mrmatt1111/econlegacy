@@ -4,6 +4,7 @@ import { Direction, RoadType } from './planet.enums';
 import { ContextRect } from '../shared/canvas-image';
 import { LandTile, NatureDetail } from './land-tile';
 import { Pixel } from '../shared';
+import { map } from 'rxjs/operators';
 
 export enum RenderThe {
     Ground = 1,
@@ -103,16 +104,28 @@ export class MapRenderer {
             }
         }
 
+        if (renderAir) {
+            if (manager.tempBuilding) {
+                let img = manager.tempBuilding;
+                ctx.drawImage(img.image, 0, 0 - img.height + 16);
+            }
+
+            if (manager.tempBuilding2) {
+                let img = manager.tempBuilding2;
+                ctx.drawImage(img.image, 64, +16 - img.height + 16);
+            }
+        }
+
+        if (MapRenderer.debugEllipse) {
+            MapRenderer.renderDebugEllipse(manager, ctx, scale, location);
+        }
+
         if (this.renderScale !== 1) {
             rect.draw(ctx, 'White');
         }
 
         if (renderGround) {
             MapRenderer.renderDebugLines(manager, ctx, scale, mx, my, location, rect, width, height);
-        }
-
-        if (MapRenderer.debugEllipse) {
-            MapRenderer.renderDebugEllipse(manager, ctx, scale, location);
         }
 
         ctx.restore();

@@ -7,7 +7,7 @@ import { LandType, Direction, Season, Neighbor, RoadType } from './planet.enums'
 import { MapManager, Neighbors } from './map.manager';
 import { Mouse } from './mouse';
 import { Location, Point } from './location';
-import { Pixel, BitMap, CanvasImage, Random } from '../shared';
+import { Pixel, BitMap, CanvasImage, Random, GifImage } from '../shared';
 import { MapRenderer, RenderThe } from './map.renderer';
 import { map } from 'rxjs/operators';
 import * as stripJsonComments from 'strip-json-comments';
@@ -26,8 +26,8 @@ export class PlanetComponent implements OnInit, AfterViewInit {
     pause: boolean = false;
     slowTile: boolean = false;
 
-    map: MapManager = new MapManager();
-    roads = new RoadManager(this.map);
+    map: MapManager; // = new MapManager();
+    roads: RoadManager; // = new RoadManager(this.map);
 
     mouse: Mouse;
 
@@ -59,6 +59,10 @@ export class PlanetComponent implements OnInit, AfterViewInit {
     lastRendered: Point;
 
     constructor(private http: HttpClient, private imageService: ImageService) {
+        GifImage.http = http;
+
+        this.map = new MapManager(http);
+        this.roads = new RoadManager(this.map);
     }
 
     ngOnInit(): void {
@@ -194,7 +198,8 @@ export class PlanetComponent implements OnInit, AfterViewInit {
         // this.map.gotoTile(92, 65);
         // this.map.gotoTile(4, 24);
         // this.map.gotoTile(24, 24);
-        this.map.gotoTile(8, 18);
+        // this.map.gotoTile(8, 18);
+        this.map.gotoTile(0, 0);
 
         LandTile.showZones = true;
 

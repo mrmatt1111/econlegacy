@@ -22,6 +22,7 @@
     "@angular/router": "^6.1.0",
     "alea": "0.0.9",
     "core-js": "^2.5.4",
+    "gify-parse": "^1.0.7",
     "rxjs": "^6.0.0",
     "strip-json-comments": "^2.0.1",
     "zone.js": "~0.8.26"

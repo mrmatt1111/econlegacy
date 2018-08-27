@@ -25,7 +25,11 @@
             "styles": [
               "src/styles.css"
             ],
-            "scripts": ["node_modules/alea/alea.js", "node_modules/strip-json-comments/index.js"]
+            "scripts": [
+              "node_modules/alea/alea.js", 
+              "node_modules/strip-json-comments/index.js",
+              "node_modules/gify-parse/gify-parse.js",
+            ]
           },
           "configurations": {
             "production": {

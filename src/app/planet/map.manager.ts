@@ -3,7 +3,7 @@ import { LandTransition, Orientation, LandType } from './planet.enums';
 import { Location, Point } from './location';
 import { EventEmitter } from '@angular/core';
 import { TileLoader } from './loaders/tile.loader';
-import { Random } from '../shared';
+import { Random, CanvasImage, GifImage } from '../shared';
 import { Planet } from './planet';
 import { Neighbor } from './planet.enums';
 import * as _ from 'lodash';
@@ -91,8 +91,21 @@ export class MapManager {
 
     private _drawableTiles: LandTile[];
 
-    constructor() {
+    tempBuilding: GifImage;
+    tempBuilding2: GifImage;
 
+    constructor() {
+        let url = './assets/buildings/dis/com/building.com.0.gif';
+
+        GifImage.load(url, (img) => {
+            this.tempBuilding = img; // img.frames[7].image;
+        });
+
+        url = './assets/buildings/shared/public/portal-in.gif';
+
+        GifImage.load(url, (img) => {
+            this.tempBuilding2 = img; // img.frames[7].image;
+        });
     }
 
     init(width: number, height: number) {
@@ -168,12 +181,6 @@ export class MapManager {
                 up.push(LandTransition.West);
             }
 
-            // (11, 13)
-
-            // if (x === 11 && y === 13) {
-            //     debugger;
-            // }
-
             if (up.length > 0) {
                 if (up.length === 1) {
                     tile.landTrasition = <any>up[0];
@@ -218,90 +225,6 @@ export class MapManager {
             // flat land
             tile.landTrasition = LandTransition.None;
         });
-
-        // for (let y = 0; y < this.height; y++) {
-        //     for (let x = 0; x < this.width; x++) {
-        //         let tile: LandTile = this.getTile(x, y); // this.map[y][x];
-
-        //         // let tx = tile.location.tx;
-        //         // let ty = tile.location.ty;
-
-        //         let neighbor: LandTile;
-
-        //         let up: LandTransition[] = [];
-
-        //         // transition up: 1 or 2 are touching up
-        //         neighbor = this.getTile(x, y - 1);
-        //         if (neighbor && neighbor.landType > tile.landType) {
-        //             up.push(LandTransition.North);
-        //         }
-
-        //         neighbor = this.getTile(x + 1, y);
-        //         if (neighbor && neighbor.landType > tile.landType) {
-        //             up.push(LandTransition.East);
-        //         }
-
-        //         neighbor = this.getTile(x, y + 1);
-        //         if (neighbor && neighbor.landType > tile.landType) {
-        //             up.push(LandTransition.South);
-        //         }
-
-        //         neighbor = this.getTile(x - 1, y);
-        //         if (neighbor && neighbor.landType > tile.landType) {
-        //             up.push(LandTransition.West);
-        //         }
-
-        //         // (11, 13)
-
-        //         // if (x === 11 && y === 13) {
-        //         //     debugger;
-        //         // }
-
-        //         if (up.length > 0) {
-        //             if (up.length === 1) {
-        //                 tile.landTrasition = <any>up[0];
-        //             } else {
-        //                 if (up[0] === LandTransition.North && up[1] === LandTransition.West) {
-        //                     tile.landTrasition = LandTransition.NW_up;
-        //                 } else {
-        //                     tile.landTrasition = <any>up[0] + 4;
-        //                 }
-        //             }
-        //             continue;
-        //         }
-
-        //         // transition down: 1 touching down
-        //         let down: LandTransition[] = [];
-
-        //         neighbor = this.getTile(x + 1, y - 1);
-        //         if (neighbor && neighbor.landType > tile.landType) {
-        //             down.push(LandTransition.NE_up);
-        //         }
-
-        //         neighbor = this.getTile(x + 1, y + 1);
-        //         if (neighbor && neighbor.landType > tile.landType) {
-        //             down.push(LandTransition.SE_up);
-        //         }
-
-        //         neighbor = this.getTile(x - 1, y + 1);
-        //         if (neighbor && neighbor.landType > tile.landType) {
-        //             down.push(LandTransition.SW_up);
-        //         }
-
-        //         neighbor = this.getTile(x - 1, y - 1);
-        //         if (neighbor && neighbor.landType > tile.landType) {
-        //             down.push(LandTransition.NW_up);
-        //         }
-
-        //         if (down.length === 1) {
-        //             tile.landTrasition = down[0] + 4;
-        //             continue;
-        //         }
-
-        //         // flat land
-        //         tile.landTrasition = LandTransition.None;
-        //     }
-        // }
     }
 
     setupNature() {

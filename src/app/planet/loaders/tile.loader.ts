@@ -39,7 +39,7 @@ export class TileLoader {
 
         this.season = season;
 
-        TileLoader.overlayPixel.forEach((zone) => this.createOverlayCanvas(zone));
+        TileLoader.overlayPixel.forEach((overlay) => this.createOverlayCanvas(overlay));
 
         [LandType.Water, LandType.Low, LandType.Medium, LandType.High]
             .forEach((landType) => {
@@ -56,7 +56,7 @@ export class TileLoader {
         });
     }
 
-    createOverlayCanvas(zonePixel: Pixel) {
+    createOverlayCanvas(overlayPixel: Pixel) {
         let overlay: CanvasImage = CanvasImage.create(64, 32);
 
         this.overlayCanvas.push(overlay);
@@ -73,18 +73,18 @@ export class TileLoader {
 
         let bitmap: BitMap = overlay.getBitMap();
 
-        let alpha = zonePixel.alpha / 255;
+        let alpha = overlayPixel.alpha / 255;
 
         for (let py: number = 0; py < 32; py++) {
             for (let px: number = 0; px < 64; px++) {
                 let pixel = bitmap.pixel[px][py];
                 if (pixel.green === 255) {
                     if (pixel.alpha === 255) {
-                        pixel.copy(zonePixel, false);
+                        pixel.copy(overlayPixel, false);
                     } else {
-                        let alpha0 = bitmap.pixel[px][py].alpha / 255;
-                        pixel.copy(zonePixel, true);
-                        pixel.alpha = Math.floor((alpha0 * alpha) * 255);
+                        let _alpha = bitmap.pixel[px][py].alpha / 255;
+                        pixel.copy(overlayPixel, true);
+                        pixel.alpha = Math.floor((_alpha * alpha) * 255);
                     }
                 }
             }
@@ -93,16 +93,16 @@ export class TileLoader {
         overlay.putBitMap(bitmap);
     }
 
-    initZoneImage(versionArray: HTMLImageElement[], overlayIndex: number) {
+    initOverlayImage(versionArray: HTMLImageElement[], overlayIndex: number) {
         if (overlayIndex === 0) {
             return;
         }
 
-        let _image: CanvasImage = CanvasImage.load(versionArray[0]);
-        versionArray.push(_image.image);
+        let image: CanvasImage = CanvasImage.load(versionArray[0]);
+        versionArray.push(image.image);
 
-        _image.ctx.drawImage(this.overlayCanvas[overlayIndex].canvas, 0, 0);
-        _image.press();
+        image.ctx.drawImage(this.overlayCanvas[overlayIndex].canvas, 0, 0);
+        image.press();
     }
 
     initBaseImage(landType: LandType, landData, version) {
@@ -167,7 +167,7 @@ export class TileLoader {
             }
 
             let overlayCount = 0;
-            TileLoader.overlayPixel.forEach((zone) => this.initZoneImage(this.base[landType][version], overlayCount++));
+            TileLoader.overlayPixel.forEach((overlay) => this.initOverlayImage(this.base[landType][version], overlayCount++));
         });
     }
 
@@ -219,7 +219,7 @@ export class TileLoader {
 
                         image.press((img) => {
                             let overlayCount = 0;
-                            TileLoader.overlayPixel.forEach((overlay) => this.initZoneImage(detail.groundImage, overlayCount++));
+                            TileLoader.overlayPixel.forEach((overlay) => this.initOverlayImage(detail.groundImage, overlayCount++));
                         });
                     }
                 );
@@ -474,9 +474,11 @@ export class TileLoader {
 
         image.ctx.drawImage(upperImage.canvas, 0, 0);
 
+        upperImage.destroyContext();
+
         image.press((img) => {
             let overlayCount = 0;
-            TileLoader.overlayPixel.forEach((zone) => this.initZoneImage(this.blended[lowerType][transition], overlayCount));
+            TileLoader.overlayPixel.forEach((overlay) => this.initOverlayImage(this.blended[lowerType][transition], overlayCount));
         });
     }
 }

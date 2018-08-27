@@ -1,4 +1,11 @@
 {
+    "buildings": {
+        "dis": {
+            "com": [
+                "building.com.0.gif"
+            ]
+        }
+    },
     "roads": {
         "EndN": "road.end.n.gif", // end caps
         "EndE": "road.end.e.gif",
