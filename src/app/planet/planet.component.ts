@@ -61,7 +61,7 @@ export class PlanetComponent implements OnInit, AfterViewInit {
     constructor(private http: HttpClient, private imageService: ImageService) {
         GifImage.http = http;
 
-        this.map = new MapManager(http);
+        this.map = new MapManager();
         this.roads = new RoadManager(this.map);
     }
 
